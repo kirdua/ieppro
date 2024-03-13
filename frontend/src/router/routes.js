@@ -5,6 +5,11 @@ const routes = [
     component: () => import('@/views/Dashboard.vue')
   },
   {
+    path: '/progress',
+    name: 'progress',
+    component: () => import('@/views/ProgressReport.vue')
+  },
+  {
     path: '/about',
     name: 'about',
     component: () => import('@/views/About.vue')
