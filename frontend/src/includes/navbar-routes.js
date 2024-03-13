@@ -10,12 +10,6 @@ const navbarRoutes = [
     value: 'progess',
     icon: 'mdi-progress-check',
     route: 'progress'
-  },
-  {
-    title: 'About',
-    value: 'about',
-    icon: 'mdi-information-variant',
-    route: 'about'
   }
 ]
 
