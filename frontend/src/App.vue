@@ -1,8 +1,34 @@
-<script setup></script>
+<script setup>
+import { RouterView } from 'vue-router'
+import NavDrawer from '@/components/NavDrawer.vue'
+</script>
 
 <template>
-  <div>
-    <h1 className="text-3xl font-bold underline">Hello world!</h1>
-    <button class="bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3">Test</button>
-  </div>
+  <v-app>
+    <nav-drawer />
+    <v-containter fluid>
+      <v-main>
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component"></component>
+          </transition>
+        </router-view>
+      </v-main>
+    </v-containter>
+  </v-app>
 </template>
+
+<style>
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: all 0.5s linear;
+}
+
+.fade-leave-to {
+  transition: all 0s lienar;
+  opacity: 0;
+}
+</style>
