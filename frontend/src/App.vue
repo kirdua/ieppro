@@ -1,20 +1,21 @@
 <script setup>
 import { RouterView } from 'vue-router'
 import NavDrawer from '@/components/NavDrawer.vue'
+import Vue3Toastify from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 </script>
 
 <template>
   <v-app>
+    <Vue3Toastify />
     <nav-drawer />
-    <v-containter fluid>
-      <v-main>
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component"></component>
-          </transition>
-        </router-view>
-      </v-main>
-    </v-containter>
+    <v-main>
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component"></component>
+        </transition>
+      </router-view>
+    </v-main>
   </v-app>
 </template>
 
