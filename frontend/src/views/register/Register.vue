@@ -1,4 +1,3 @@
-// eslint-disable-next-line vue/multi-word-component-names
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
