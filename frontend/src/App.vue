@@ -1,14 +1,22 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterView } from 'vue-router'
+import useUserStore from '@/stores/user'
 import NavDrawer from '@/components/NavDrawer.vue'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+
+const userStore = useUserStore()
+
+const isLoggedIn = computed(() => {
+  return userStore.userLoggedIn
+})
 </script>
 
 <template>
   <v-app>
     <Vue3Toastify />
-    <nav-drawer />
+    <nav-drawer v-if="isLoggedIn" />
     <v-main>
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
