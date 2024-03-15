@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import useUserStore from '@/stores/user'
+import AppBar from '@/components/AppBar.vue'
 import NavDrawer from '@/components/NavDrawer.vue'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
@@ -18,6 +19,7 @@ const isLoggedIn = computed(() => {
     <Vue3Toastify />
     <nav-drawer v-if="isLoggedIn" />
     <v-main>
+      <app-bar v-if="isLoggedIn" />
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component"></component>

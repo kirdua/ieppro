@@ -1,19 +1,23 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import navbarRoutes from '@/includes/navbar-routes'
+import useUserStore from '@/stores/user'
+
+const userStore = useUserStore()
+const { userInfo } = userStore
 
 const drawer = ref(true)
 const rail = ref(true)
 const items = navbarRoutes
+
+const userName = computed(() => {
+  return userInfo.name.split(' ')[0]
+})
 </script>
 <template>
   <v-card>
     <v-navigation-drawer v-model="drawer" :rail="rail" permanent @click="rail = false">
-      <v-list-item
-        prepend-avatar="https://randomuser.me/api/portraits/men/85.jpg"
-        title="John Leider"
-        nav
-      >
+      <v-list-item :title="userName" nav>
         <template v-slot:append>
           <v-btn icon="mdi-chevron-left" variant="text" @click.stop="rail = !rail"></v-btn>
         </template>

@@ -1,25 +1,58 @@
-<script setup></script>
+<script setup>
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import useAppStore from '@/stores/app'
+import useUserStore from '@/stores/user'
 
+const router = useRouter()
+const appStore = useAppStore()
+const userStore = useUserStore()
+
+const { toggleNavDrawer } = appStore
+const { logout } = userStore
+
+const goToProfile = () => {
+  router.push('/profile')
+}
+
+const logoutHandler = async () => {
+  await logout()
+  router.push('/login')
+}
+
+const items = [
+  { title: 'Profile', action: goToProfile, icon: 'mdi-account' },
+  { title: 'Logout', action: logoutHandler, icon: 'mdi-logout' }
+]
+</script>
 <template>
-  <v-card class="mx-auto" color="grey-lighten-3">
-    <v-layout>
-      <v-app-bar color="teal-darken-4">
-        <v-app-bar-title>Title</v-app-bar-title>
+  <v-app-bar flat class="justify-end">
+    <template v-slot:prepend> </template>
 
-        <v-spacer></v-spacer>
-
-        <v-btn icon>
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-
-        <v-btn icon>
-          <v-icon>mdi-heart</v-icon>
-        </v-btn>
-
-        <v-btn icon>
+    <v-app-bar-title></v-app-bar-title>
+    <v-menu open-on-hover class="justify-end">
+      <template v-slot:activator="{ props }">
+        <v-btn icon color="primary" v-bind="props">
           <v-icon>mdi-dots-vertical</v-icon>
         </v-btn>
-      </v-app-bar>
-    </v-layout>
-  </v-card>
+      </template>
+
+      <v-list>
+        <v-list-item v-for="(item, index) in items" :key="index" @click="item.action">
+          <v-list-item-content class="custom-list-item">
+            <v-list-item-icon class="mr-2">
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+  </v-app-bar>
 </template>
+
+<style scoped>
+.custom-list-item {
+  display: inline-flex;
+}
+</style>
