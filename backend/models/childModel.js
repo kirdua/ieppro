@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const childSchema = new Schema(
   {
-    user: {
+    parentId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -20,7 +20,7 @@ const childSchema = new Schema(
       type: String,
       required: true,
     },
-    specialNeeds: [
+    diagnoses: [
       {
         type: String,
       },

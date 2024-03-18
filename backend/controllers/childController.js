@@ -6,9 +6,9 @@ import generateToken from '../utils/generateToken.js'
 //route   POST /api/children/register
 //@access Public
 const registerChild = asyncHandler(async (req, res) => {
-  const { user, name, dateOfBirth, gradeLevel, specialNeeds, accommodations } =
+  const { parentId, name, dateOfBirth, gradeLevel, diagnoses, accommodations } =
     req.body
-  const childExists = await Child.findOne({ user, name, dateOfBirth })
+  const childExists = await Child.findOne({ parentId, name, dateOfBirth })
 
   if (childExists) {
     res.status(400)
@@ -16,11 +16,11 @@ const registerChild = asyncHandler(async (req, res) => {
   }
 
   const child = await Child.create({
-    user,
+    parentId,
     name,
     dateOfBirth,
     gradeLevel,
-    specialNeeds,
+    diagnoses,
     accommodations,
   })
 
@@ -28,11 +28,11 @@ const registerChild = asyncHandler(async (req, res) => {
     generateToken(res, child._id)
     res.status(201).json({
       _id: child._id,
-      user,
+      parentId,
       name,
       dateOfBirth,
       gradeLevel,
-      specialNeeds,
+      diagnoses,
       accommodations,
     })
   } else {
