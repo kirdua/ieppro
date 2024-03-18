@@ -10,6 +10,12 @@ const navbarRoutes = [
     value: 'progess',
     icon: 'mdi-progress-check',
     route: 'progress'
+  },
+  {
+    title: 'Children Profiles',
+    value: 'children',
+    icon: 'mdi-account-child-outline',
+    route: 'children'
   }
 ]
 

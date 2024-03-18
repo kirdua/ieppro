@@ -32,6 +32,17 @@ const routes = [
     component: () => import('@/views/register/Register.vue')
   },
   {
+    path: '/children',
+    name: 'children',
+    component: () => import('@/views/children/Children.vue'),
+    beforeEnter(to, from, next) {
+      next()
+    },
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/:catchAll(.*)*',
     redirect: { name: 'overview' }
   }

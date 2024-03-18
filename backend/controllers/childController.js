@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Child from '../models/childModel.js'
+import User from '../models/userModel.js'
 import generateToken from '../utils/generateToken.js'
 
 //@desc   Register new user
@@ -43,4 +44,15 @@ const registerChild = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Child Registered' })
 })
 
-export { registerChild }
+const getChildrenByParentId = async (req, res) => {
+  const parentId = req.body
+  const children = await Child.find(parentId)
+  if (children) {
+    res.status(200).json(children)
+  } else {
+    res.status(400)
+    throw new Error('Children not available')
+  }
+}
+
+export { registerChild, getChildrenByParentId }
