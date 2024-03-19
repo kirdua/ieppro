@@ -1,3 +1,5 @@
+import { isValid, parse, format } from 'date-fns'
+
 export const useFormRules = () => {
   const nameRules = [
     (v) => !!v || 'Name is required',
@@ -23,10 +25,16 @@ export const useFormRules = () => {
     (v) => v === password || 'Passwords do not match'
   ]
 
+  const validateBirthDate = (date) => {
+    const parsedDate = parse(date, 'M/d/yyyy', new Date())
+    return isValid(parsedDate) && date === format(parsedDate, 'M/d/yyyy')
+  }
+
   return {
     nameRules,
     emailRules,
     passwordRules,
-    getConfirmPasswordRules
+    getConfirmPasswordRules,
+    validateBirthDate
   }
 }

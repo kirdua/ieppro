@@ -20,7 +20,6 @@ export default defineStore('user', {
     },
     async login(values) {
       const { data } = await axios.post(`${USERS_URL}/auth`, values)
-      console.log(data)
       this.userInfo = data
       this.userLoggedIn = true
       localStorage.setItem('userInfo', JSON.stringify(data))
