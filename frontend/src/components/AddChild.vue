@@ -2,8 +2,16 @@
 import { ref, computed } from 'vue'
 import { gradeLevels, diagnosesList, accommodationsList } from '@/includes/child-options'
 import { useFormRules } from '@/includes/validation'
+import useChildrenStore from '@/stores/children'
+import useUserStore from '@/stores/user'
+import { toast } from 'vue3-toastify'
 
-const emit = defineEmits(['submitChild'])
+const userStore = useUserStore()
+const childrenStore = useChildrenStore()
+
+const { userInfo } = userStore
+const { addChild } = childrenStore
+// const emit = defineEmits(['submitChild'])
 
 const dialog = ref(false)
 const name = ref('')
@@ -11,7 +19,6 @@ const dateOfBirth = ref('')
 const gradeLevel = ref('')
 const diagnoses = ref()
 const accommodations = ref()
-const error = ref(false)
 
 const { validateBirthDate } = useFormRules()
 
@@ -19,8 +26,9 @@ const dateOfBirthRules = computed(() => [
   (value) => validateBirthDate(value) || 'Date must be in the format M/D/YYYY'
 ])
 
-const submitChild = () => {
+const submitChild = async () => {
   const childInfo = {
+    parentId: userInfo._id,
     name: name.value,
     dateOfBirth: dateOfBirth.value,
     gradeLevel: gradeLevel.value,
@@ -29,11 +37,16 @@ const submitChild = () => {
   }
 
   if (!name.value || !dateOfBirth.value || !gradeLevel.value || !diagnoses.value) {
-    return (error.value = true)
+    return toast.error('Add child information')
   }
 
-  emit('submitChild', childInfo)
-  dialog.value = false
+  try {
+    await addChild(childInfo)
+    toast.success('Child added')
+    dialog.value = false
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Child registration failed')
+  }
 }
 
 const cancel = () => {
@@ -78,13 +91,7 @@ const cancel = () => {
           <v-btn @click="submitChild" color="primary"> Submit </v-btn>
           <v-btn @click="cancel"> Cancel </v-btn>
         </template>
-        <div v-if="error" class="error">Please fill out the form</div>
       </v-card>
     </v-dialog>
   </div>
 </template>
-<style module>
-.error {
-  color: 'red' !important;
-}
-</style>

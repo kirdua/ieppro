@@ -9,7 +9,7 @@ import generateToken from '../utils/generateToken.js'
 const registerChild = asyncHandler(async (req, res) => {
   const { parentId, name, dateOfBirth, gradeLevel, diagnoses, accommodations } =
     req.body
-  const childExists = await Child.findOne({ parentId, name, dateOfBirth })
+  const childExists = await Child.findOne({ parentId, name })
 
   if (childExists) {
     res.status(400)

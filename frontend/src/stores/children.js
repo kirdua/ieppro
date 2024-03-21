@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-const CHLDREN_URL = '/api/children'
+const CHILDREN_URL = '/api/children' // Define CHILDREN_URL here
 
 export default defineStore('children', {
   state: () => ({
     children: [],
-    childInfo: {}
+    childInfo: {},
+    childId: ''
   }),
   actions: {
     async addChild(data) {
