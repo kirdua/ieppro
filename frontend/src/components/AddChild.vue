@@ -3,15 +3,13 @@ import { ref, computed } from 'vue'
 import { gradeLevels, diagnosesList, accommodationsList } from '@/includes/child-options'
 import { useFormRules } from '@/includes/validation'
 import useChildrenStore from '@/stores/children'
-import useUserStore from '@/stores/user'
 import { toast } from 'vue3-toastify'
 
-const userStore = useUserStore()
 const childrenStore = useChildrenStore()
-
-const { userInfo } = userStore
 const { addChild } = childrenStore
-// const emit = defineEmits(['submitChild'])
+
+const props = defineProps(['parentId', 'disabled'])
+const emit = defineEmits(['getChildData'])
 
 const dialog = ref(false)
 const name = ref('')
@@ -26,9 +24,17 @@ const dateOfBirthRules = computed(() => [
   (value) => validateBirthDate(value) || 'Date must be in the format M/D/YYYY'
 ])
 
+const clearForm = () => {
+  name.value = ''
+  dateOfBirth.value = ''
+  gradeLevel.value = ''
+  diagnoses.value = null
+  accommodations.value = null
+}
+
 const submitChild = async () => {
   const childInfo = {
-    parentId: userInfo._id,
+    parentId: props.parentId,
     name: name.value,
     dateOfBirth: dateOfBirth.value,
     gradeLevel: gradeLevel.value,
@@ -44,24 +50,22 @@ const submitChild = async () => {
     await addChild(childInfo)
     toast.success('Child added')
     dialog.value = false
+    emit('getChildData')
+    clearForm()
   } catch (error) {
     toast.error(error?.response?.data?.message || 'Child registration failed')
   }
 }
 
 const cancel = () => {
-  name.value = ''
-  dateOfBirth.value = ''
-  gradeLevel.value = ''
-  diagnoses.value = null
-  accommodations.value = null
+  clearForm()
   dialog.value = false
 }
 </script>
 
 <template>
   <div class="d-flex justify-end mr-5">
-    <v-btn color="primary" rippel @click="dialog = true">Add Child</v-btn>
+    <v-btn color="primary" rippel @click="dialog = true" :disabled="disabled">Add Child</v-btn>
     <v-dialog v-model="dialog" max-width="400" persistent>
       <v-card class="pa-4">
         <v-card-title>Child's Information</v-card-title>

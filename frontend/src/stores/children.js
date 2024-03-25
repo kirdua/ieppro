@@ -12,6 +12,10 @@ export default defineStore('children', {
   actions: {
     async addChild(data) {
       await axios.post(`${CHILDREN_URL}/register`, data)
+    },
+    async getChildrenProfiles(parentId) {
+      const { data } = await axios.get(`${CHILDREN_URL}`, parentId)
+      this.children = data || []
     }
   }
 })
