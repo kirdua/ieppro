@@ -43,7 +43,7 @@ const registerChild = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Child Registered' })
 })
 
-const getChildrenByParentId = async (req, res) => {
+const getChildrenByParentId = asyncHandler(async (req, res) => {
   const parentId = req.body
   const children = await Child.find(parentId)
   if (children) {
@@ -52,7 +52,7 @@ const getChildrenByParentId = async (req, res) => {
     res.status(400)
     throw new Error('Children not available')
   }
-}
+})
 
 const updateChildProfile = asyncHandler(async (req, res) => {
   const child = await Child.findById(req.child._id)
