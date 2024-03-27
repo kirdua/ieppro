@@ -54,4 +54,32 @@ const getChildrenByParentId = async (req, res) => {
   }
 }
 
-export { registerChild, getChildrenByParentId }
+const updateChildProfile = asyncHandler(async (req, res) => {
+  const child = await Child.findById(req.child._id)
+
+  if (child) {
+    child.name = req.body.name || child.name
+    child.dateOfBirth = req.body.dateOfBirth || child.dateOfBirth
+    child.gradeLevel = req.body.gradeLevel || child.gradeLevel
+    child.diagnoses = req.body.diagnoses || child.diagnoses
+    child.accommodations = req.body.accommodations || child.accommodations
+
+    const updatedChild = await child.save()
+
+    res.status(200).json({
+      _id: updatedChild._id,
+      name: updatedChild.name,
+      dateOfBirth: updatedChild.dateOfBirth,
+      gradeLevel: updatedChild.gradeLevel,
+      diagnoses: updatedChild.diagnoses,
+      accommodations: updatedChild.accommodations,
+    })
+  } else {
+    res.status(404)
+    throw new Error('User not found')
+  }
+
+  res.status(200).json({ message: 'Child profile updated' })
+})
+
+export { registerChild, getChildrenByParentId, updateChildProfile }
