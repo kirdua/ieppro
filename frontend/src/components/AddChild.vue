@@ -6,7 +6,6 @@ import useChildrenStore from '@/stores/children'
 import { toast } from 'vue3-toastify'
 
 const childrenStore = useChildrenStore()
-const { addChild } = childrenStore
 
 const props = defineProps(['parentId', 'disabled'])
 const emit = defineEmits(['getChildData'])
@@ -47,7 +46,7 @@ const submitChild = async () => {
   }
 
   try {
-    await addChild(childInfo)
+    await childrenStore.addChild(childInfo)
     toast.success('Child added')
     dialog.value = false
     emit('getChildData')
