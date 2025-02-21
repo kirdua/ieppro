@@ -19,7 +19,7 @@ const { logout } = userStore
 const currentTitle = ref('')
 
 const goToProfile = () => {
-  router.push('/profile')
+  router.push('/user')
 }
 
 const logoutHandler = async () => {

@@ -16,7 +16,7 @@ export default defineStore('user', {
   }),
   actions: {
     async register(values) {
-      const { email, password, name } = values
+      const { email, password, name, tos } = values
       const userCred = await createUserWithEmailAndPassword(auth, email, password)
       const userDocRef = doc(usersCollection, userCred.user.uid)
 
@@ -26,6 +26,7 @@ export default defineStore('user', {
         parentId: userCred.user.uid,
         name,
         email,
+        tos,
         createdAt: formatDate,
         updatedAt: formatDate
       })
@@ -34,9 +35,8 @@ export default defineStore('user', {
         name,
         uid: userCred.user.uid
       }
-
-      localStorage.setItem('userInfo', JSON.stringify(currentUser))
       this.userLoggedIn = true
+      localStorage.setItem('userInfo', JSON.stringify(currentUser))
     },
     async login(values) {
       const { email, password } = values

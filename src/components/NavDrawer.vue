@@ -11,7 +11,7 @@ const drawer = ref(true)
 const rail = ref(true)
 
 const userName = computed(() => {
-  return !userInfo.name ? 'User' : userInfo.name.split(' ')[0]
+  return userInfo?.name ? userInfo.name : 'User'
 })
 
 const activeItem = ref('') // Store the active item route

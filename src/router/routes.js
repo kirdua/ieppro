@@ -26,12 +26,24 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/views/login/Login.vue')
+    component: () => import('@/views/auth/Login.vue')
   },
   {
     path: '/register',
     name: 'register',
-    component: () => import('@/views/register/Register.vue')
+    component: () => import('@/views/auth/Register.vue')
+  },
+  {
+    path: '/user',
+    name: 'user',
+    component: () => import('@/views/profile/User.vue'),
+    beforeEnter(to, from, next) {
+      next()
+    },
+    meta: {
+      requiresAuth: true,
+      header: 'User Profile'
+    }
   },
   {
     path: '/children',

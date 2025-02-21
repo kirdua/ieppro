@@ -3,41 +3,64 @@ import '@mdi/font/css/materialdesignicons.css'
 import colors from 'vuetify/util/colors'
 import 'vuetify/styles'
 
-const myCustomTheme = {
+const iepproTheme = {
   dark: false,
   colors: {
-    background: '#D1D4C9',
-    surface: '#fdfdff',
-    black: '#393d3f',
-    white: '#fdfdff',
-    'white-1': '#DDDDDD',
-    brown: '#c6c5b9',
-    lightblue: '#62929e',
-    blue: '#546a7b',
-    'blue-1': '#125D98',
-    'blue-2': '#3c8dad;',
-    red: '#FF5959',
-    'soft-red': '#FA7070',
-    primary: '#2E3A87',
-    error: '#FF5252',
-    info: '#baf2d8',
-    success: '#baf2bb',
-    warning: '#f2e2ba',
-    bgDarkBlue: '#152A38'
+    primary: '#008080', // Teal (Main Theme)
+    secondary: '#66A182', // Soft Green
+    accent: '#FF8C42', // Warm Orange
+    background: '#D4D4D4',
+    surface: '#FFFFFF',
+    text: '#333333',
+
+    // Status Colors
+    scheduled: '#007BFF', // Blue
+    confirmed: '#28A745', // Green
+    rescheduled: '#FFA500', // Orange
+    canceled: '#DC3545', // Red
+    completed: '#6F42C1', // Purple
+
+    pending: '#FFA500', // Orange
+    paid: '#28A745', // Green
+    failed: '#DC3545', // Red
+    refunded: '#007BFF', // Blue
+
+    healthy: '#28A745', // Green
+    underTreatment: '#FFA500', // Orange
+    critical: '#DC3545', // Red
+    recovering: '#007BFF', // Blue
+    deceased: '#212529', // Black
+
+    newRecord: '#007BFF', // Blue
+    reviewed: '#28A745', // Green
+    requiresAction: '#FFA500', // Orange
+    archived: '#F8F9FA', // Light Gray
+
+    activePrescription: '#28A745', // Green
+    completedPrescription: '#007BFF', // Blue
+    expiredPrescription: '#FFA500', // Orange
+    stoppedPrescription: '#DC3545', // Red
+
+    available: '#28A745', // Green
+    busy: '#FFA500', // Orange
+    offline: '#6C757D', // Gray
+    onLeave: '#DC3545' // Red
   }
 }
 
-// Vuetify
 import { createVuetify } from 'vuetify'
 
 export default createVuetify({
   theme: {
-    defaultTheme: 'myCustomTheme',
+    defaultTheme: 'iepproTheme',
     themes: {
-      myCustomTheme
+      iepproTheme
     },
     options: {
       customProperties: true
+    },
+    typography: {
+      fontFamily: 'Poppins, Roboto, sans-serif'
     }
   }
 })
