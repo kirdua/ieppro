@@ -82,13 +82,17 @@ const toggleMode = () => {
             type="password"
             required
           />
-          <v-checkbox v-if="isRegister" v-model="termsOfService" required>
+          <v-checkbox v-if="isRegister" v-model="termsOfService" color="primary" required>
             <template v-slot:label>
               <div>
                 I agree with
                 <v-tooltip location="bottom">
                   <template v-slot:activator="{ props }">
-                    <a href="https://vuetifyjs.com" @click.prevent="showTOSModal = true">
+                    <a
+                      href="https://vuetifyjs.com"
+                      @click.prevent="showTOSModal = true"
+                      class="text-primary"
+                    >
                       Terms of Service
                     </a>
                   </template>
