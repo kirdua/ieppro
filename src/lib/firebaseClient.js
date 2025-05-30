@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getAuth } from 'firebase/auth'
-import { getFirestore, collection, doc, serverTimestamp } from 'firebase/firestore'
+import { getFirestore, collection, doc, serverTimestamp, addDoc } from 'firebase/firestore'
 
 const apiKey = import.meta.env.VITE_FIREBASE_APIKEY
 const authDomain = import.meta.env.VITE_FIREBASE_AUTHDOMAIN
@@ -41,5 +41,7 @@ export {
   servicesCollection,
   goalsCollection,
   doc,
-  serverTimestamp
+  serverTimestamp,
+  addDoc,
+  collection
 }

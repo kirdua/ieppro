@@ -118,8 +118,20 @@ const routes = [
     }
   },
   {
-    path: '/:catchAll(.*)*',
-    redirect: { name: 'overview' }
+    path: '/iep-upload',
+    name: 'iepupload',
+    component: () => import('@/components/upload/IepUpload.vue'),
+    beforeEnter(to, from, next) {
+      next()
+    },
+    meta: {
+      requiresAuth: true,
+      header: 'IEP Upload'
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 

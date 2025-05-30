@@ -14,12 +14,16 @@ const childrenStore = useChildrenStore()
 const servicesStore = useServicesStore()
 const goalsStore = useGoalsStore()
 
-const { logout } = userStore
+const { logout, userInfo } = userStore
 
 const currentTitle = ref('')
 
 const goToProfile = () => {
   router.push('/user')
+}
+
+const goToIepUpload = () => {
+  router.push({ name: 'iepupload' })
 }
 
 const logoutHandler = async () => {
@@ -29,6 +33,7 @@ const logoutHandler = async () => {
 
 const items = [
   { title: 'Profile', action: goToProfile, icon: 'mdi-account' },
+  { title: 'Upload IEP', action: goToIepUpload, icon: 'mdi-file-upload' },
   { title: 'Logout', action: logoutHandler, icon: 'mdi-logout' }
 ]
 
@@ -52,6 +57,7 @@ const handleAddGoals = () => {
   router.push({ name: 'add-goals', query: { id, grade: gradeLevel } })
 }
 </script>
+
 <template>
   <v-app-bar flat class="justify-end dropshadow">
     <template v-slot:prepend>
@@ -81,8 +87,11 @@ const handleAddGoals = () => {
 
     <v-menu open-on-hover class="justify-end">
       <template v-slot:activator="{ props }">
-        <v-btn icon color="primary" v-bind="props">
-          <v-icon>mdi-dots-vertical</v-icon>
+        <v-btn icon v-bind="props">
+          <v-avatar size="40" v-if="userInfo?.profilePicUrl">
+            <img :src="userInfo.profilePicUrl" alt="Profile Picture" />
+          </v-avatar>
+          <v-icon v-else color="primary">mdi-dots-vertical</v-icon>
         </v-btn>
       </template>
 
@@ -103,5 +112,11 @@ const handleAddGoals = () => {
 <style scoped>
 .custom-list-item {
   display: inline-flex;
+}
+
+.v-avatar img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 </style>
