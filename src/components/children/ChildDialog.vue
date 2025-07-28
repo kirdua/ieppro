@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { gradeLevels, diagnosesList, accommodationsList } from '@/utils/child-options'
+import { useCloudinary } from '@/composables/useCloudinary'
 import { useFormRules } from '@/utils/validation'
 import useChildrenStore from '@/stores/children'
 import { toast } from 'vue3-toastify'
@@ -9,6 +10,8 @@ import { v7 as uuidv7 } from 'uuid'
 
 const childrenStore = useChildrenStore()
 const myuuid = uuidv7()
+
+const { uploadToCloudinary, isUploading, uploadError } = useCloudinary()
 
 const props = defineProps(['parentId', 'disabled'])
 const emit = defineEmits(['getChildData'])
@@ -21,6 +24,8 @@ const accommodations = ref()
 const extendeSchoolYear = ref(true)
 const specialTransportation = ref(false)
 const _id = ref()
+const imageFile = ref([])
+const previewUrl = ref('')
 
 const { validateBirthDate } = useFormRules()
 
@@ -40,6 +45,10 @@ const populateForm = () => {
     extendeSchoolYear.value = selectedChild.extendeSchoolYear
     specialTransportation.value = selectedChild.specialTransportation
     _id.value = selectedChild._id
+
+    if (selectedChild.profileImage) {
+      previewUrl.value = selectedChild.profileImage
+    }
   }
 }
 
@@ -50,6 +59,12 @@ watch(
   }
 )
 
+watch(imageFile, (files) => {
+  if (files?.[0]) {
+    previewUrl.value = URL.createObjectURL(files[0])
+  }
+})
+
 const clearForm = () => {
   name.value = ''
   dateOfBirth.value = ''
@@ -58,10 +73,25 @@ const clearForm = () => {
   accommodations.value = accommodationsList[0]
   extendeSchoolYear.value = true
   specialTransportation.value = false
+  imageFile.value = []
+  previewUrl.value = ''
 }
 
 const submitChild = async () => {
   const accommodationsValue = accommodations.value || accommodationsList[0]
+
+  if (!name.value || !dateOfBirth.value || !gradeLevel.value || !diagnoses.value) {
+    return toast.error('Add child information')
+  }
+
+  let uploadedImage = previewUrl.value // fallback to existing image if editing
+
+  if (imageFile.value?.[0]) {
+    uploadedImage = await uploadToCloudinary(imageFile.value[0])
+    if (!uploadedImage) {
+      return toast.error('Failed to upload image')
+    }
+  }
 
   const childInfo = {
     parentId: props.parentId,
@@ -72,11 +102,8 @@ const submitChild = async () => {
     accommodations: accommodationsValue,
     extendeSchoolYear: extendeSchoolYear.value,
     specialTransportation: specialTransportation.value,
+    profileImage: uploadedImage || undefined,
     _id: _id.value || myuuid
-  }
-
-  if (!childInfo.name || !childInfo.dateOfBirth || !childInfo.gradeLevel || !childInfo.diagnoses) {
-    return toast.error('Add child information')
   }
 
   try {
@@ -95,6 +122,7 @@ const submitChild = async () => {
     const updateAdd = childrenStore.editProfile ? 'update' : 'registration'
     toast.error(error?.response?.data?.message || `Child ${updateAdd} failed`)
   }
+
   childrenStore.error = 'There is an error!'
 }
 
@@ -108,41 +136,56 @@ const cancel = () => {
   <v-dialog v-model="childrenStore.modalIsVisible" max-width="400">
     <v-card class="pa-4">
       <v-card-title>Child's Information</v-card-title>
-      <v-text-field v-model="name" placeholder="Child's name" class="p-1"></v-text-field>
+
+      <v-text-field v-model="name" placeholder="Child's name" class="p-1" />
+
       <v-text-field
         v-model="dateOfBirth"
         :rules="dateOfBirthRules"
         placeholder="Date of birth: 1/1/2023"
-      ></v-text-field>
-      <v-select v-model="gradeLevel" :items="gradeLevels" label="Grade Level"></v-select>
-      <v-select
-        v-model="diagnoses"
-        :items="diagnosesList"
-        label="Qualifications"
-        chips
-        multiple
-      ></v-select>
+      />
+
+      <v-select v-model="gradeLevel" :items="gradeLevels" label="Grade Level" />
+
+      <v-select v-model="diagnoses" :items="diagnosesList" label="Qualifications" chips multiple />
+
       <v-select
         v-model="accommodations"
         :items="accommodationsList"
         label="Accommodations"
         chips
         multiple
-      ></v-select>
-      <v-checkbox
-        v-model="extendeSchoolYear"
-        label="Extended School Year (ESY)"
-        color="primary"
-      ></v-checkbox>
-      <v-checkbox
-        v-model="specialTransportation"
-        label="Special Transportation"
-        color="primary"
-      ></v-checkbox>
+      />
+
+      <v-checkbox v-model="extendeSchoolYear" label="Extended School Year (ESY)" color="primary" />
+
+      <v-checkbox v-model="specialTransportation" label="Special Transportation" color="primary" />
+
+      <v-file-input
+        v-model="imageFile"
+        label="Upload Child's Photo"
+        accept="image/*"
+        show-size
+        prepend-icon="mdi-camera"
+        class="mt-2"
+      />
+
+      <v-progress-linear v-if="isUploading" indeterminate color="primary" class="mb-2" />
+
+      <v-img v-if="previewUrl" :src="previewUrl" max-height="150" contain class="mb-2" />
+
+      <v-alert
+        v-if="uploadError"
+        type="error"
+        title="Upload Error"
+        text="There was a problem uploading the image."
+        class="mb-2"
+      />
+
       <template v-slot:actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="cancel"> Cancel </v-btn>
-        <v-btn @click="submitChild" color="primary"> Submit </v-btn>
+        <v-spacer />
+        <v-btn @click="cancel">Cancel</v-btn>
+        <v-btn @click="submitChild" color="primary">Submit</v-btn>
       </template>
     </v-card>
   </v-dialog>

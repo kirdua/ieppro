@@ -11,5 +11,6 @@ const store = createPinia()
 const app = createApp(App)
 
 loadFonts()
+console.log('Running in', import.meta.env.MODE, 'mode')
 
 app.use(router).use(store).use(vuetify).mount('#app')
