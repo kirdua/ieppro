@@ -52,19 +52,6 @@ const populateForm = () => {
   }
 }
 
-watch(
-  () => childrenStore.editProfile,
-  () => {
-    if (childrenStore.editProfile) populateForm()
-  }
-)
-
-watch(imageFile, (files) => {
-  if (files?.[0]) {
-    previewUrl.value = URL.createObjectURL(files[0])
-  }
-})
-
 const clearForm = () => {
   name.value = ''
   dateOfBirth.value = ''
@@ -75,7 +62,26 @@ const clearForm = () => {
   specialTransportation.value = false
   imageFile.value = []
   previewUrl.value = ''
+  _id.value = ''
 }
+
+watch(
+  () => childrenStore.editProfile,
+  (isEdit) => {
+    if (isEdit && childrenStore.selectedChildProfile) {
+      populateForm()
+    } else {
+      clearForm()
+    }
+  },
+  { immediate: true }
+)
+
+watch(imageFile, (files) => {
+  if (files?.[0]) {
+    previewUrl.value = URL.createObjectURL(files[0])
+  }
+})
 
 const submitChild = async () => {
   const accommodationsValue = accommodations.value || accommodationsList[0]
@@ -84,7 +90,7 @@ const submitChild = async () => {
     return toast.error('Add child information')
   }
 
-  let uploadedImage = previewUrl.value // fallback to existing image if editing
+  let uploadedImage = previewUrl.value
 
   if (imageFile.value?.[0]) {
     uploadedImage = await uploadToCloudinary(imageFile.value[0])
@@ -128,6 +134,8 @@ const submitChild = async () => {
 
 const cancel = () => {
   clearForm()
+  childrenStore.selectedChildProfile = null
+  childrenStore.editProfile = false
   childrenStore.toggleModal()
 }
 </script>

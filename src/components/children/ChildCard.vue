@@ -37,37 +37,59 @@ const goToAddServices = (id, grade) => {
 }
 </script>
 <template>
-  <v-card width="496" height="200" elevation="16" color="#385F73" class="d-flex flex-column">
-    <v-card-title class="d-flex align-center blue darken-1 text-h5">
-      <v-icon color="white-1">mdi-account</v-icon>
-      <span class="ml-2">{{ props.child.name }}</span>
-      <v-spacer></v-spacer>
-      <v-icon
-        color="white-1"
-        class="cursor-pointer text-h5"
-        v-tooltip="'Delete Profile'"
-        @click="deleteChildInfo"
-        >mdi-close</v-icon
-      >
-    </v-card-title>
-    <v-card-subtitle class="d-flex justify-space-between">
-      <strong class="text-h6">Date of Birth: {{ birthDate }}</strong>
-      <strong class="text-h6">Grade: {{ props.child.gradeLevel }}</strong>
-    </v-card-subtitle>
+  <v-card
+    width="420"
+    elevation="10"
+    class="pa-4 d-flex flex-column position-relative"
+    color="#385F73"
+  >
+    <!-- Close Icon -->
+    <v-btn
+      icon
+      class="ma-0 pa-0 position-absolute"
+      style="top: 8px; right: 8px; z-index: 1"
+      variant="text"
+      @click="deleteChildInfo"
+    >
+      <v-icon color="white">mdi-close</v-icon>
+    </v-btn>
 
-    <v-card-actions class="d-flex justify-end mt-10">
-      <div>
-        <v-btn color="white-1" variant="outlined" @click="updateChildInfo">View/Edit Profile</v-btn>
-        <v-btn
-          color="white-1"
-          variant="outlined"
-          @click="goToAddServices(props.child._id, props.child.gradeLevel)"
-          >Add Special Services</v-btn
-        >
+    <!-- Profile Info Row -->
+    <div class="d-flex align-center mb-4">
+      <v-avatar size="64" class="mr-4">
+        <v-img
+          v-if="props.child.profileImage"
+          :src="props.child.profileImage"
+          alt="Child's photo"
+          cover
+        />
+        <v-icon v-else color="white" size="32">mdi-account</v-icon>
+      </v-avatar>
+      <div class="text-white">
+        <div class="text-h6 font-weight-medium">{{ props.child.name }}</div>
+        <div class="text-body-2">Date of Birth: {{ birthDate }}</div>
+        <div class="text-body-2">Grade: {{ props.child.gradeLevel }}</div>
       </div>
+    </div>
+
+    <!-- Actions -->
+    <v-card-actions class="d-flex justify-end">
+      <v-btn color="white" variant="outlined" size="small" @click="updateChildInfo">
+        View/Edit Profile
+      </v-btn>
+      <v-btn
+        color="white"
+        variant="outlined"
+        size="small"
+        class="ml-2"
+        @click="goToAddServices(props.child._id, props.child.gradeLevel)"
+      >
+        Add Special Services
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
+
 <style>
 .card-bg {
   background-color: '#152A38' !important;

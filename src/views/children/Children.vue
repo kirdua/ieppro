@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import ChildCard from '@/components/children/ChildCard.vue'
 import ChildDialog from '@/components/children/ChildDialog.vue'
-import { gradeLevels, diagnosesList, accommodationsList } from '@/utils/child-options'
 import useUserStore from '@/stores/user'
 import useChildrenStore from '@/stores/children'
 
@@ -36,16 +35,20 @@ const getChildrenInfo = async () => {
   <div>
     <v-progress-linear v-if="isLoading" color="cyan" indeterminate></v-progress-linear>
 
-    <v-row class="pa-3 d-flex flex-wrap space-around">
+    <v-row class="pa-3" justify="start">
       <v-col
         v-for="child in childStore.children"
         :key="child._id"
-        class="d-flex justify-center"
-        style="max-width: 100%"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+        xl="3"
       >
-        <child-card :child="child" @get-child-data="getChildrenInfo" class="mx-2 my-2" />
+        <child-card :child="child" @get-child-data="getChildrenInfo" />
       </v-col>
     </v-row>
+
     <v-row>
       <v-col>
         <child-dialog
