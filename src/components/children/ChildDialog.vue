@@ -1,6 +1,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { gradeLevels, diagnosesList, accommodationsList } from '@/utils/child-options'
+import {
+  gradeLevels,
+  diagnosesList,
+  accommodationsList,
+  specialServicesList
+} from '@/utils/child-options'
 import { useCloudinary } from '@/composables/useCloudinary'
 import { useFormRules } from '@/utils/validation'
 import useChildrenStore from '@/stores/children'
@@ -23,8 +28,7 @@ const currentTeacher = ref('')
 const gradeLevel = ref('')
 const diagnoses = ref()
 const accommodations = ref()
-const extendeSchoolYear = ref(true)
-const specialTransportation = ref(false)
+const specialServices = ref()
 const _id = ref()
 const imageFile = ref([])
 const previewUrl = ref('')
@@ -46,8 +50,7 @@ const populateForm = () => {
     gradeLevel.value = selectedChild.gradeLevel
     diagnoses.value = selectedChild.diagnoses
     accommodations.value = selectedChild.accommodations
-    extendeSchoolYear.value = selectedChild.extendeSchoolYear
-    specialTransportation.value = selectedChild.specialTransportation
+    specialServices.value = selectedChild.specialServices
     _id.value = selectedChild._id
 
     if (selectedChild.profileImage) {
@@ -64,8 +67,7 @@ const clearForm = () => {
   gradeLevel.value = ''
   diagnoses.value = null
   accommodations.value = accommodationsList[0]
-  extendeSchoolYear.value = true
-  specialTransportation.value = false
+  specialServices.value = null
   imageFile.value = []
   previewUrl.value = ''
   _id.value = ''
@@ -91,6 +93,7 @@ watch(imageFile, (files) => {
 
 const submitChild = async () => {
   const accommodationsValue = accommodations.value || accommodationsList[0]
+  const specialServicesValue = specialServices.value || []
 
   if (!name.value || !dateOfBirth.value || !gradeLevel.value || !diagnoses.value) {
     return toast.error('Add child information')
@@ -114,8 +117,7 @@ const submitChild = async () => {
     gradeLevel: gradeLevel.value,
     diagnoses: diagnoses.value,
     accommodations: accommodationsValue,
-    extendeSchoolYear: extendeSchoolYear.value,
-    specialTransportation: specialTransportation.value,
+    specialServices: specialServicesValue,
     profileImage: uploadedImage || undefined,
     _id: _id.value || myuuid
   }
@@ -179,9 +181,13 @@ const cancel = () => {
         multiple
       />
 
-      <v-checkbox v-model="extendeSchoolYear" label="Extended School Year (ESY)" color="primary" />
-
-      <v-checkbox v-model="specialTransportation" label="Special Transportation" color="primary" />
+      <v-select
+        v-model="specialServices"
+        :items="specialServicesList"
+        label="Special Services"
+        chips
+        multiple
+      />
 
       <v-file-input
         v-model="imageFile"

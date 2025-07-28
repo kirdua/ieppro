@@ -126,6 +126,22 @@ const goToAddServices = (id, grade) => {
         </div>
         <div v-else>N/A</div>
       </div>
+      <div class="mb-4">
+        <strong>Special Services:</strong>
+        <div v-if="props.child.specialServices?.length">
+          <v-chip
+            v-for="a in props.child.specialServices"
+            :key="a"
+            class="ma-1"
+            size="small"
+            variant="tonal"
+            color="teal"
+          >
+            {{ a }}
+          </v-chip>
+        </div>
+        <div v-else>N/A</div>
+      </div>
 
       <!-- Action Buttons -->
       <div class="d-flex justify-end mt-2">
