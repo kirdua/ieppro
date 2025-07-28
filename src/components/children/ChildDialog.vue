@@ -18,6 +18,8 @@ const emit = defineEmits(['getChildData'])
 
 const name = ref('')
 const dateOfBirth = ref('')
+const currentSchool = ref('')
+const currentTeacher = ref('')
 const gradeLevel = ref('')
 const diagnoses = ref()
 const accommodations = ref()
@@ -39,6 +41,8 @@ const populateForm = () => {
   if (selectedChild) {
     name.value = selectedChild.name
     dateOfBirth.value = formattedDate
+    currentSchool.value = selectedChild.currentSchool || ''
+    currentTeacher.value = selectedChild.currentTeacher || ''
     gradeLevel.value = selectedChild.gradeLevel
     diagnoses.value = selectedChild.diagnoses
     accommodations.value = selectedChild.accommodations
@@ -55,6 +59,8 @@ const populateForm = () => {
 const clearForm = () => {
   name.value = ''
   dateOfBirth.value = ''
+  currentSchool.value = ''
+  currentTeacher.value = ''
   gradeLevel.value = ''
   diagnoses.value = null
   accommodations.value = accommodationsList[0]
@@ -103,6 +109,8 @@ const submitChild = async () => {
     parentId: props.parentId,
     name: name.value,
     dateOfBirth: dateOfBirth.value,
+    currentSchool: currentSchool.value,
+    currentTeacher: currentTeacher.value,
     gradeLevel: gradeLevel.value,
     diagnoses: diagnoses.value,
     accommodations: accommodationsValue,
@@ -141,9 +149,14 @@ const cancel = () => {
 </script>
 
 <template>
-  <v-dialog v-model="childrenStore.modalIsVisible" max-width="400">
+  <v-dialog v-model="childrenStore.modalIsVisible" max-width="600">
     <v-card class="pa-4">
-      <v-card-title>Child's Information</v-card-title>
+      <v-card-title class="d-flex justify-space-between align-center">
+        <span>Child's Information</span>
+        <v-btn icon variant="text" @click="cancel" class="ma-0 pa-0">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </v-card-title>
 
       <v-text-field v-model="name" placeholder="Child's name" class="p-1" />
 
@@ -152,7 +165,8 @@ const cancel = () => {
         :rules="dateOfBirthRules"
         placeholder="Date of birth: 1/1/2023"
       />
-
+      <v-text-field v-model="currentSchool" placeholder="School" />
+      <v-text-field v-model="currentTeacher" placeholder="Teacher" />
       <v-select v-model="gradeLevel" :items="gradeLevels" label="Grade Level" />
 
       <v-select v-model="diagnoses" :items="diagnosesList" label="Qualifications" chips multiple />

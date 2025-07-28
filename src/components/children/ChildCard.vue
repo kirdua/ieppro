@@ -22,7 +22,6 @@ const updateChildInfo = async () => {
 
 const deleteChildInfo = async () => {
   const { _id, parentId } = props.child
-  console.log(props.child)
   try {
     childrenStore.deleteChildProfile({ _id, parentId })
     toast.success('Child removed')
@@ -36,62 +35,122 @@ const goToAddServices = (id, grade) => {
   router.push({ name: 'add-services', query: { id, grade } })
 }
 </script>
+
 <template>
   <v-card
-    width="420"
-    elevation="10"
-    class="pa-4 d-flex flex-column position-relative"
-    color="#385F73"
+    elevation="8"
+    class="pa-0"
+    color="white"
+    style="border-radius: 12px; max-width: 500px; width: 500px"
   >
-    <!-- Close Icon -->
-    <v-btn
-      icon
-      class="ma-0 pa-0 position-absolute"
-      style="top: 8px; right: 8px; z-index: 1"
-      variant="text"
-      @click="deleteChildInfo"
+    <!-- Header with background -->
+    <v-sheet
+      color="#385F73"
+      class="d-flex justify-space-between align-start pa-4"
+      elevation="0"
+      rounded="t"
     >
-      <v-icon color="white">mdi-close</v-icon>
-    </v-btn>
+      <!-- Avatar + Name -->
+      <div class="d-flex align-start">
+        <v-avatar size="64" class="mr-4">
+          <v-img
+            v-if="props.child.profileImage"
+            :src="props.child.profileImage"
+            alt="Child photo"
+            cover
+          />
+          <v-icon v-else size="32" color="grey">mdi-account</v-icon>
+        </v-avatar>
+        <div>
+          <div class="text-h6 font-weight-bold text-white">{{ props.child.name }}</div>
+          <div class="text-h7 text-white">
+            <span class="font-weight-bold">DOB:</span> {{ birthDate }}<br />
+            <span class="font-weight-bold">Grade:</span> {{ props.child.gradeLevel }}
+          </div>
+        </div>
+      </div>
 
-    <!-- Profile Info Row -->
-    <div class="d-flex align-center mb-4">
-      <v-avatar size="64" class="mr-4">
-        <v-img
-          v-if="props.child.profileImage"
-          :src="props.child.profileImage"
-          alt="Child's photo"
-          cover
-        />
-        <v-icon v-else color="white" size="32">mdi-account</v-icon>
-      </v-avatar>
-      <div class="text-white">
-        <div class="text-h6 font-weight-medium">{{ props.child.name }}</div>
-        <div class="text-body-2">Date of Birth: {{ birthDate }}</div>
-        <div class="text-body-2">Grade: {{ props.child.gradeLevel }}</div>
+      <!-- Delete Icon with Tooltip -->
+      <v-tooltip text="Delete Profile" location="top">
+        <template #activator="{ props: tooltip }">
+          <v-btn icon v-bind="tooltip" variant="text" size="small" @click="deleteChildInfo">
+            <v-icon color="text-white">mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-tooltip>
+    </v-sheet>
+
+    <!-- Content -->
+    <div class="pa-5 pt-4">
+      <v-divider class="mb-4" />
+
+      <v-row no-gutters class="text-body-2 mb-2">
+        <v-col cols="12" md="6" class="mb-2">
+          <strong>School:</strong> {{ props.child.currentSchool || 'N/A' }}
+        </v-col>
+        <v-col cols="12" md="6" class="mb-2">
+          <strong>Teacher:</strong> {{ props.child.currentTeacher || 'N/A' }}
+        </v-col>
+      </v-row>
+
+      <div class="mb-2">
+        <strong>Diagnoses:</strong>
+        <div v-if="props.child.diagnoses?.length">
+          <v-chip
+            v-for="d in props.child.diagnoses"
+            :key="d"
+            class="ma-1"
+            size="small"
+            variant="tonal"
+            color="indigo"
+          >
+            {{ d }}
+          </v-chip>
+        </div>
+        <div v-else>N/A</div>
+      </div>
+
+      <div class="mb-4">
+        <strong>Accommodations:</strong>
+        <div v-if="props.child.accommodations?.length">
+          <v-chip
+            v-for="a in props.child.accommodations"
+            :key="a"
+            class="ma-1"
+            size="small"
+            variant="tonal"
+            color="teal"
+          >
+            {{ a }}
+          </v-chip>
+        </div>
+        <div v-else>N/A</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex justify-end mt-2">
+        <v-btn variant="outlined" color="primary" size="small" @click="updateChildInfo">
+          Edit Profile
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          color="primary"
+          size="small"
+          class="ml-2"
+          @click="goToAddServices(props.child._id, props.child.gradeLevel)"
+        >
+          Add Scheduled Services
+        </v-btn>
       </div>
     </div>
-
-    <!-- Actions -->
-    <v-card-actions class="d-flex justify-end">
-      <v-btn color="white" variant="outlined" size="small" @click="updateChildInfo">
-        View/Edit Profile
-      </v-btn>
-      <v-btn
-        color="white"
-        variant="outlined"
-        size="small"
-        class="ml-2"
-        @click="goToAddServices(props.child._id, props.child.gradeLevel)"
-      >
-        Add Special Services
-      </v-btn>
-    </v-card-actions>
   </v-card>
 </template>
 
-<style>
-.card-bg {
-  background-color: '#152A38' !important;
+<style scoped>
+.text-grey-darken-4 {
+  color: #ffffff;
+}
+.text-grey-darken-1 {
+  color: #ffffff;
 }
 </style>

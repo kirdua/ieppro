@@ -6,7 +6,7 @@ import 'vuetify/styles'
 const iepproTheme = {
   dark: false,
   colors: {
-    primary: '#008080', // Teal (Main Theme)
+    primary: '#385F73', // Teal (Main Theme)
     secondary: '#66A182', // Soft Green
     accent: '#FF8C42', // Warm Orange
     background: '#D4D4D4',
