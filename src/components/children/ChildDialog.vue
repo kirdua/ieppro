@@ -12,6 +12,7 @@ import useChildrenStore from '@/stores/children'
 import { toast } from 'vue3-toastify'
 import { readableTimestamp } from '@/utils/date-format'
 import { v7 as uuidv7 } from 'uuid'
+import TruncatedMultiSelect from './TruncatedMultiSelect.vue'
 
 const childrenStore = useChildrenStore()
 const myuuid = uuidv7()
@@ -26,10 +27,10 @@ const dateOfBirth = ref('')
 const currentSchool = ref('')
 const currentTeacher = ref('')
 const gradeLevel = ref('')
-const diagnoses = ref()
-const accommodations = ref()
-const specialServices = ref()
-const _id = ref()
+const diagnoses = ref([])
+const accommodations = ref([])
+const specialServices = ref([])
+const _id = ref('')
 const imageFile = ref([])
 const previewUrl = ref('')
 
@@ -48,9 +49,9 @@ const populateForm = () => {
     currentSchool.value = selectedChild.currentSchool || ''
     currentTeacher.value = selectedChild.currentTeacher || ''
     gradeLevel.value = selectedChild.gradeLevel
-    diagnoses.value = selectedChild.diagnoses
-    accommodations.value = selectedChild.accommodations
-    specialServices.value = selectedChild.specialServices
+    diagnoses.value = selectedChild.diagnoses || []
+    accommodations.value = selectedChild.accommodations || []
+    specialServices.value = selectedChild.specialServices || []
     _id.value = selectedChild._id
 
     if (selectedChild.profileImage) {
@@ -65,9 +66,9 @@ const clearForm = () => {
   currentSchool.value = ''
   currentTeacher.value = ''
   gradeLevel.value = ''
-  diagnoses.value = null
-  accommodations.value = accommodationsList[0]
-  specialServices.value = null
+  diagnoses.value = []
+  accommodations.value = []
+  specialServices.value = []
   imageFile.value = []
   previewUrl.value = ''
   _id.value = ''
@@ -92,10 +93,7 @@ watch(imageFile, (files) => {
 })
 
 const submitChild = async () => {
-  const accommodationsValue = accommodations.value || accommodationsList[0]
-  const specialServicesValue = specialServices.value || []
-
-  if (!name.value || !dateOfBirth.value || !gradeLevel.value || !diagnoses.value) {
+  if (!name.value || !dateOfBirth.value || !gradeLevel.value || !diagnoses.value.length) {
     return toast.error('Add child information')
   }
 
@@ -116,8 +114,8 @@ const submitChild = async () => {
     currentTeacher: currentTeacher.value,
     gradeLevel: gradeLevel.value,
     diagnoses: diagnoses.value,
-    accommodations: accommodationsValue,
-    specialServices: specialServicesValue,
+    accommodations: accommodations.value,
+    specialServices: specialServices.value,
     profileImage: uploadedImage || undefined,
     _id: _id.value || myuuid
   }
@@ -161,7 +159,6 @@ const cancel = () => {
       </v-card-title>
 
       <v-text-field v-model="name" placeholder="Child's name" class="p-1" />
-
       <v-text-field
         v-model="dateOfBirth"
         :rules="dateOfBirthRules"
@@ -171,22 +168,25 @@ const cancel = () => {
       <v-text-field v-model="currentTeacher" placeholder="Teacher" />
       <v-select v-model="gradeLevel" :items="gradeLevels" label="Grade Level" />
 
-      <v-select v-model="diagnoses" :items="diagnosesList" label="Qualifications" chips multiple />
+      <truncated-multi-select
+        v-model="diagnoses"
+        :items="diagnosesList"
+        label="Qualifications"
+        color="indigo"
+      />
 
-      <v-select
+      <truncated-multi-select
         v-model="accommodations"
         :items="accommodationsList"
         label="Accommodations"
-        chips
-        multiple
+        color="teal"
       />
 
-      <v-select
+      <truncated-multi-select
         v-model="specialServices"
         :items="specialServicesList"
         label="Special Services"
-        chips
-        multiple
+        color="primary"
       />
 
       <v-file-input
@@ -199,7 +199,6 @@ const cancel = () => {
       />
 
       <v-progress-linear v-if="isUploading" indeterminate color="primary" class="mb-2" />
-
       <v-img v-if="previewUrl" :src="previewUrl" max-height="150" contain class="mb-2" />
 
       <v-alert

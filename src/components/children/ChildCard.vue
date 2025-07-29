@@ -135,7 +135,7 @@ const goToAddServices = (id, grade) => {
             class="ma-1"
             size="small"
             variant="tonal"
-            color="teal"
+            color="primary"
           >
             {{ a }}
           </v-chip>

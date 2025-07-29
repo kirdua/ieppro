@@ -106,18 +106,6 @@ const routes = [
     }
   },
   {
-    path: '/other-services',
-    name: 'other-services',
-    component: () => import('@/views/other/OtherServices.vue'),
-    beforeEnter(to, from, next) {
-      next()
-    },
-    meta: {
-      requiresAuth: true,
-      header: 'Other Services'
-    }
-  },
-  {
     path: '/iep-upload',
     name: 'iepupload',
     component: () => import('@/components/upload/IepUpload.vue'),
