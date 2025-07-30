@@ -41,6 +41,12 @@ export const goalHeaders = [
     title: 'Implementer',
     align: 'left',
     key: 'implementer'
+  },
+  {
+    title: 'Actions',
+    align: 'left',
+    key: 'actions',
+    sortable: false
   }
 ]
 

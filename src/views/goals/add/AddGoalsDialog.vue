@@ -2,9 +2,11 @@
 import { ref, toRaw } from 'vue'
 import useGoalsStore from '@/stores/goals'
 import { progressGradedByOptions } from '@/constants'
+import { v7 as uuidv7 } from 'uuid'
 
 const goalsStore = useGoalsStore()
 const goalTypeItems = ['Academic', 'Functional', 'Related Services']
+const myuuid = uuidv7()
 
 const emit = defineEmits(['save-goal'])
 
@@ -14,6 +16,7 @@ const currentPerformance = ref('')
 const duration = ref('')
 const benchmarks = ref([''])
 const currentImplementer = ref(progressGradedByOptions[1])
+const _id = ref()
 
 const addBenchmark = () => {
   benchmarks.value.push('')
@@ -31,6 +34,7 @@ const closeGoalsModal = () => {
   duration.value = ''
   benchmarks.value = ['']
   currentImplementer.value = progressGradedByOptions[1]
+  _id.value = ''
 }
 
 const saveGoal = () => {
@@ -40,7 +44,9 @@ const saveGoal = () => {
     currentPerformance: currentPerformance.value,
     duration: duration.value,
     benchmarks: toRaw(benchmarks.value),
-    implementer: currentImplementer.value
+    implementer: currentImplementer.value,
+    id: _id.value || myuuid,
+    createdDate: new Date().toISOString()
   })
   closeGoalsModal()
 }

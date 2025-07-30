@@ -2,7 +2,7 @@
 const props = defineProps({
   color: {
     type: String,
-    default: 'blue-1'
+    default: 'primary'
   },
   buttonText: {
     type: String,

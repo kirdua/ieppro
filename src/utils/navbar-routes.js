@@ -8,13 +8,13 @@ const navbarRoutes = [
   {
     title: 'Children Profiles',
     value: 'children',
-    icon: 'mdi-account-child-outline',
+    icon: 'mdi-account-school-outline',
     route: 'children'
   },
   {
     title: 'Goals',
     value: 'goals',
-    icon: 'mdi-check-circle',
+    icon: 'mdi-bullseye-arrow',
     route: 'goals'
   },
   {

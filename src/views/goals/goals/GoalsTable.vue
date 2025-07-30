@@ -14,6 +14,11 @@ const handleRowClick = (item) => {
   goalStore.selectedGoalRow = item
   goalStore.toggleGoalsDrawer(true)
 }
+
+const deleteGoal = (item) => {
+  // Replace with actual deletion logic (e.g., store or API)
+  console.log('Deleting goal:', item)
+}
 </script>
 
 <template>
@@ -29,8 +34,14 @@ const handleRowClick = (item) => {
         <td>{{ item.duration }}</td>
         <td>{{ formatTableData(item.benchmarks, 'number') }}</td>
         <td>{{ item.implementer }}</td>
+        <td @click.stop>
+          <v-icon color="red-darken-1" size="20" class="cursor-pointer" @click="deleteGoal(item)">
+            mdi-delete
+          </v-icon>
+        </td>
       </tr>
     </template>
+
     <template #bottom></template>
   </v-data-table>
 </template>

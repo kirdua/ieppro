@@ -7,6 +7,7 @@ import useGoalsStore from '@/stores/goals'
 
 import GoalsTable from './GoalsTable.vue'
 import GoalsSidebar from '../goals/GoalsSidebar.vue'
+import NoGoals from './NoGoals.vue'
 
 const userStore = useUserStore()
 const childStore = useChildrenStore()
@@ -92,7 +93,16 @@ const getGoals = async () => {
         :disabled="isLoading"
       ></v-select>
     </div>
-    <GoalsSidebar />
-    <GoalsTable :isLoading="isLoading" :items="goalsStore.goals" />
+    <div v-if="isLoading" class="text-center mt-4">
+      <v-progress-circular indeterminate color="primary" />
+      <div class="mt-2">Loading Goals...</div>
+    </div>
+
+    <div v-else-if="!isLoading && goalsStore.goals.length === 0">
+      <NoGoals />
+    </div>
+    <div v-else>
+      <GoalsTable :isLoading="isLoading" :items="goalsStore.goals" />
+    </div>
   </div>
 </template>

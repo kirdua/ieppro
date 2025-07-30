@@ -18,18 +18,13 @@ const activeItem = ref('') // Store the active item route
 
 const setActiveItem = (route) => {
   activeItem.value = route
+  rail.value = true // Close rail when an item is clicked
 }
 </script>
 
 <template>
   <v-card>
-    <v-navigation-drawer
-      v-model="drawer"
-      :rail="rail"
-      permanent
-      color="#385F73"
-      @click="rail = false"
-    >
+    <v-navigation-drawer v-model="drawer" :rail="rail" permanent color="#385F73">
       <v-list-item :title="userName" nav>
         <template v-slot:append>
           <v-btn icon="mdi-chevron-left" variant="text" @click.stop="rail = !rail"></v-btn>
@@ -38,17 +33,36 @@ const setActiveItem = (route) => {
 
       <v-divider></v-divider>
       <v-list nav>
-        <v-list-item
-          v-for="item in items"
-          :key="item.title"
-          :prepend-icon="item.icon"
-          :title="item.title"
-          :value="item.value"
-          :to="item.route"
-          :active-class="'selected-item'"
-          @click="setActiveItem(item.route)"
-          :class="{ 'selected-item': activeItem === item.route }"
-        ></v-list-item>
+        <template v-for="item in items" :key="item.title">
+          <!-- Tooltip only when rail is collapsed -->
+          <v-tooltip v-if="rail" location="right">
+            <template #activator="{ props }">
+              <v-list-item
+                v-bind="props"
+                :prepend-icon="item.icon"
+                :title="item.title"
+                :value="item.value"
+                :to="item.route"
+                :active-class="'selected-item'"
+                @click="setActiveItem(item.route)"
+                :class="{ 'selected-item': activeItem === item.route }"
+              />
+            </template>
+            <span>{{ item.title }}</span>
+          </v-tooltip>
+
+          <!-- No tooltip when rail is expanded -->
+          <v-list-item
+            v-else
+            :prepend-icon="item.icon"
+            :title="item.title"
+            :value="item.value"
+            :to="item.route"
+            :active-class="'selected-item'"
+            @click="setActiveItem(item.route)"
+            :class="{ 'selected-item': activeItem === item.route }"
+          />
+        </template>
       </v-list>
     </v-navigation-drawer>
   </v-card>
