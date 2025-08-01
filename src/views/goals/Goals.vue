@@ -6,8 +6,9 @@ import useChildrenStore from '@/stores/children'
 import useGoalsStore from '@/stores/goals'
 
 import GoalsTable from './GoalsTable.vue'
-import GoalsSidebar from '../goals/GoalsSidebar.vue'
+import GoalsSidebar from './GoalsSidebar.vue'
 import NoGoals from './NoGoals.vue'
+import AddGoalModal from './components/AddGoalModal.vue'
 
 const userStore = useUserStore()
 const childStore = useChildrenStore()
@@ -103,6 +104,12 @@ const getGoals = async () => {
     </div>
     <div v-else>
       <GoalsTable :isLoading="isLoading" :items="goalsStore.goals" />
+      <GoalsSidebar />
     </div>
+    <AddGoalModal
+      :selectedChildId="selectedChildId"
+      :currentGrade="currentGrade"
+      @goal-added="getGoals"
+    />
   </div>
 </template>

@@ -60,7 +60,7 @@ const routes = [
   {
     path: '/goals',
     name: 'goals',
-    component: () => import('@/views/goals/goals/Goals.vue'),
+    component: () => import('@/views/goals/Goals.vue'),
     beforeEnter(to, from, next) {
       next()
     },

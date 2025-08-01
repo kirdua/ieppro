@@ -6,12 +6,12 @@ import moment from 'moment'
 
 const useGoalsStore = defineStore('goals', () => {
   const formatDate = moment().format()
-
   const goals = ref([])
   const modalIsVisible = ref(false)
   const currentChildProfile = ref({})
   const showGoalsSidebar = ref(false)
   const selectedGoalRow = ref({})
+  const addGoalsModalVisible = ref(false)
 
   const toggleModal = () => {
     modalIsVisible.value = !modalIsVisible.value
@@ -19,6 +19,10 @@ const useGoalsStore = defineStore('goals', () => {
 
   const toggleGoalsDrawer = (showHide) => {
     showGoalsSidebar.value = showHide
+  }
+
+  const toggleAddGoalsModal = () => {
+    addGoalsModalVisible.value = !addGoalsModalVisible.value
   }
 
   const addGoalsToGradeLevel = async (data) => {
@@ -61,11 +65,13 @@ const useGoalsStore = defineStore('goals', () => {
     showGoalsSidebar,
     currentChildProfile,
     selectedGoalRow,
+    addGoalsModalVisible,
     toggleModal,
     addGoalsToGradeLevel,
     getGoalsByGradeLevel,
     updateGoalsByGradeLevel,
-    toggleGoalsDrawer
+    toggleGoalsDrawer,
+    toggleAddGoalsModal
   }
 })
 
