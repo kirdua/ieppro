@@ -70,18 +70,6 @@ const routes = [
     }
   },
   {
-    path: '/add-goals',
-    name: 'add-goals',
-    component: () => import('@/views/goals/add/AddGoals.vue'),
-    beforeEnter(to, from, next) {
-      next()
-    },
-    meta: {
-      requiresAuth: true,
-      header: 'Add Goals'
-    }
-  },
-  {
     path: '/scheduled-services',
     name: 'scheduled-services',
     component: () => import('@/views/services/scheduled/ScheduledServices.vue'),

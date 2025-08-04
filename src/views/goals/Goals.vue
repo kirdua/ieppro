@@ -9,6 +9,7 @@ import GoalsTable from './GoalsTable.vue'
 import GoalsSidebar from './GoalsSidebar.vue'
 import NoGoals from './NoGoals.vue'
 import AddGoalModal from './components/AddGoalModal.vue'
+import GoalDeleteDialog from './components/DeleteGoal.vue'
 
 const userStore = useUserStore()
 const childStore = useChildrenStore()
@@ -20,6 +21,18 @@ const currentGrade = ref('')
 const selectedChildId = ref(null)
 const childOptions = ref([])
 const isLoading = ref(false)
+
+// New sidebar state
+const showSidebar = ref(false)
+const selectedGoal = ref(null)
+
+const deleteDialogVisible = ref(false)
+const goalToDelete = ref(null)
+
+const handleGoalClick = (goal) => {
+  selectedGoal.value = goal
+  showSidebar.value = true
+}
 
 onMounted(async () => {
   isLoading.value = true
@@ -70,6 +83,27 @@ const getGoals = async () => {
   }
   isLoading.value = false
 }
+
+const showDeleteDialog = (goal) => {
+  goalToDelete.value = goal
+  deleteDialogVisible.value = true
+}
+
+const closeDeleteDialog = () => {
+  deleteDialogVisible.value = false
+  goalToDelete.value = null
+}
+
+const deleteGoal = async () => {
+  try {
+    await goalsStore.deleteGoal(goalToDelete.value, selectedChildId.value, currentGrade.value)
+    deleteDialogVisible.value = false
+    goalToDelete.value = null
+    await getGoals()
+  } catch (err) {
+    console.error('Failed to delete goal:', err)
+  }
+}
 </script>
 
 <template>
@@ -94,22 +128,35 @@ const getGoals = async () => {
         :disabled="isLoading"
       ></v-select>
     </div>
+
     <div v-if="isLoading" class="text-center mt-4">
       <v-progress-circular indeterminate color="primary" />
       <div class="mt-2">Loading Goals...</div>
     </div>
 
-    <div v-else-if="!isLoading && goalsStore.goals.length === 0">
+    <div v-else-if="goalsStore.goals.length === 0">
       <NoGoals />
     </div>
     <div v-else>
-      <GoalsTable :isLoading="isLoading" :items="goalsStore.goals" />
-      <GoalsSidebar />
+      <GoalsTable
+        :isLoading="isLoading"
+        :items="goalsStore.goals"
+        @row-clicked="handleGoalClick"
+        @delete-goal="showDeleteDialog"
+      />
     </div>
+
+    <GoalsSidebar v-model:show="showSidebar" :goal="selectedGoal" />
     <AddGoalModal
       :selectedChildId="selectedChildId"
       :currentGrade="currentGrade"
       @goal-added="getGoals"
+    />
+    <GoalDeleteDialog
+      :goal="goalToDelete"
+      :showDeleteDialog="deleteDialogVisible"
+      @closeDeleteDialog="closeDeleteDialog"
+      @confirmDelete="deleteGoal"
     />
   </div>
 </template>

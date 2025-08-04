@@ -1,32 +1,29 @@
 <script setup>
-import { ref } from 'vue'
 import { goalHeaders, formatTableData } from '@/constants'
-import useGoalsStore from '@/stores/goals'
 
 const props = defineProps({
   items: Array,
   isLoading: Boolean
 })
-
-const goalStore = useGoalsStore()
+const emit = defineEmits(['row-clicked', 'delete-goal'])
 
 const handleRowClick = (item) => {
-  goalStore.selectedGoalRow = item
-  goalStore.toggleGoalsDrawer(true)
+  emit('row-clicked', item)
 }
 
-const deleteGoal = (item) => {
-  // Replace with actual deletion logic (e.g., store or API)
-  console.log('Deleting goal:', item)
+const handleDelete = (item, event) => {
+  event.stopPropagation() // Prevent triggering row click
+  emit('delete-goal', item)
 }
 </script>
 
 <template>
   <v-data-table :headers="goalHeaders" :items="props.items" :loading="props.isLoading">
-    <template v-slot:loading>
-      <v-skeleton-loader type="table-row@10"></v-skeleton-loader>
+    <template #loading>
+      <v-skeleton-loader type="table-row@10" />
     </template>
-    <template v-slot:item="{ item }">
+
+    <template #item="{ item }">
       <tr class="hoverable-row" @click="handleRowClick(item)">
         <td>{{ item.goalFocus }}</td>
         <td>{{ item.goalType }}</td>
@@ -34,14 +31,14 @@ const deleteGoal = (item) => {
         <td>{{ item.duration }}</td>
         <td>{{ formatTableData(item.benchmarks, 'number') }}</td>
         <td>{{ item.implementer }}</td>
-        <td @click.stop>
-          <v-icon color="red-darken-1" size="20" class="cursor-pointer" @click="deleteGoal(item)">
-            mdi-delete
+        <td>
+          <v-icon color="red" class="cursor-pointer" size="20" @click="handleDelete(item, $event)">
+            mdi-trash-can
           </v-icon>
         </td>
       </tr>
     </template>
 
-    <template #bottom></template>
+    <template #bottom />
   </v-data-table>
 </template>

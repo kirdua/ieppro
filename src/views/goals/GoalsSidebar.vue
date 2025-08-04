@@ -1,9 +1,12 @@
 <script setup>
-import { ref } from 'vue'
-import { toast } from 'vue3-toastify'
-import useGoalsStore from '@/stores/goals'
+import { ref, computed } from 'vue'
 
-const goalsStore = useGoalsStore()
+const props = defineProps({
+  show: Boolean,
+  goal: Object
+})
+
+const emit = defineEmits(['update:show'])
 
 const newBenchmarks = ref([])
 
@@ -15,146 +18,61 @@ const removeBenchmark = (index) => {
   newBenchmarks.value.splice(index, 1)
 }
 
-const updateGoals = () => {
-  // goalsStore.selectedGoalRow.benchmarks.push(...newBenchmarks.value)
-
-  try {
-    goalsStore.updateGoalsByGradeLevel(...newBenchmarks.value)
-    newBenchmarks.value = []
-    toast.success('Updated benckmarks')
-  } catch (error) {
-    toast.success('Failed to add benchmarks')
-  }
+const closeSidebar = () => {
+  emit('update:show', false)
 }
 </script>
 
 <template>
   <v-navigation-drawer
-    v-model="goalsStore.showGoalsSidebar"
+    :model-value="props.show"
+    @update:model-value="emit('update:show', $event)"
     app
     temporary
     location="right"
     width="400"
-    :class="$style.detailsDrawer"
+    class="pt-4"
   >
-    <v-list-item nav class="custom-background">
-      <template v-slot:append>
-        <v-btn
-          icon="mdi-close-thick"
-          variant="plain"
-          color="blue-1"
-          @click.stop="goalsStore.toggleGoalsDrawer(false)"
-        ></v-btn>
-      </template>
-    </v-list-item>
-
-    <v-list class="scrollable-list">
+    <template v-if="props.goal">
       <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title>
-            <strong>Goal Focus:</strong> {{ goalsStore.selectedGoalRow.goalFocus }}
-          </v-list-item-title>
-        </v-list-item-content>
+        <template #append>
+          <v-btn icon="mdi-close" variant="plain" @click="closeSidebar" />
+        </template>
       </v-list-item>
 
-      <v-list-item>
-        <v-list-item-content>
+      <v-list>
+        <v-list-item>
           <v-list-item-title>
-            <strong>Goal Type:</strong> {{ goalsStore.selectedGoalRow.goalType }}
+            <strong>Goal Focus:</strong> {{ props.goal.goalFocus }}
           </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-list-item>
-        <v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-title> <strong>Type:</strong> {{ props.goal.goalType }} </v-list-item-title>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-title>
-            <strong>Current Performance:</strong>
-            {{ goalsStore.selectedGoalRow.currentPerformance }}
+            <strong>Performance:</strong> {{ props.goal.currentPerformance }}
           </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-list-item>
-        <v-list-item-content>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-title>
-            <strong>Duration:</strong> {{ goalsStore.selectedGoalRow.duration }}
+            <strong>Duration:</strong> {{ props.goal.duration }}
           </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-list-item>
-        <v-list-item-content>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-title>
-            <strong>Implementer:</strong> {{ goalsStore.selectedGoalRow.implementer }}
+            <strong>Implementer:</strong> {{ props.goal.implementer }}
           </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      <v-list-item>
-        <v-list-item-content>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-title>
-            <v-row class="d-flex align-center">
-              <v-col>
-                <h4>Benchmarks:</h4>
-              </v-col>
-              <v-col cols="auto">
-                <v-tooltip text="Add benchmark">
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      color="blue-1"
-                      icon="mdi mdi-plus-thick"
-                      variant="plain"
-                      @click="addBenchmark"
-                    >
-                    </v-btn>
-                  </template>
-                </v-tooltip>
-              </v-col>
-            </v-row>
+            <strong>Benchmarks:</strong>
           </v-list-item-title>
-
-          <v-list>
-            <!-- Existing Benchmarks -->
-            <v-list-item
-              v-for="(benchmark, index) in goalsStore.selectedGoalRow.benchmarks"
-              :key="index"
-            >
-              <v-list-item-content>
-                <v-list-item-title>{{ index + 1 }}. {{ benchmark }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-
-            <!-- New Benchmarks -->
-            <v-list-item v-for="(benchmark, index) in newBenchmarks" :key="'new-' + index">
-              <v-list-item-content>
-                <v-text-field
-                  v-model="newBenchmarks[index]"
-                  variant="outlined"
-                  :append-inner-icon="'mdi-delete'"
-                  append-icon-cb
-                  @click:append-inner="removeBenchmark(index)"
-                ></v-text-field>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-    <v-list-item v-if="newBenchmarks.length > 0">
-      <v-btn color="blue-1" block @click="updateGoals"> Submit </v-btn>
-    </v-list-item>
+          <ul>
+            <li v-for="(b, i) in props.goal.benchmarks" :key="i">{{ i + 1 }}. {{ b }}</li>
+          </ul>
+        </v-list-item>
+      </v-list>
+    </template>
   </v-navigation-drawer>
 </template>
-
-<style module>
-.detailsDrawer {
-  top: 60px !important;
-  height: calc(100vh - 60px);
-}
-
-.scrollable-list {
-  overflow-y: auto;
-  max-height: calc(100vh - 120px); /* Adjust height as needed */
-}
-</style>

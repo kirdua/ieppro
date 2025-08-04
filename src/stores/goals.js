@@ -43,18 +43,36 @@ const useGoalsStore = defineStore('goals', () => {
 
       if (querySnapshot.empty) {
         console.log('No matching documents.')
+        goals.value = []
+        return
       }
 
       const goalsList = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        if (data.goals) {
-          goalsList.push(...data.goals) // Extracting and adding the goals array to goalsList
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data()
+        if (data.goals && Array.isArray(data.goals)) {
+          data.goals.forEach((goal) => {
+            goalsList.push({ ...goal, _docId: docSnap.id }) // Attach Firestore doc ID
+          })
         }
       })
+
       goals.value = goalsList
     } catch (error) {
       console.error('Error fetching goals:', error)
+      goals.value = []
+    }
+  }
+
+  const deleteGoal = async (goalToDelete) => {
+    try {
+      const docRef = doc(goalsCollection, goalToDelete._docId)
+      await deleteDoc(docRef)
+
+      goals.value = goals.value.filter((g) => g._docId !== goalToDelete._docId)
+    } catch (error) {
+      console.error('❌ Error deleting goal document:', error)
     }
   }
 
@@ -71,7 +89,8 @@ const useGoalsStore = defineStore('goals', () => {
     getGoalsByGradeLevel,
     updateGoalsByGradeLevel,
     toggleGoalsDrawer,
-    toggleAddGoalsModal
+    toggleAddGoalsModal,
+    deleteGoal
   }
 })
 
