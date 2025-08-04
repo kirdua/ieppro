@@ -1,9 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import useGoalsStore from '@/stores/goals'
-import { progressGradedByOptions } from '@/constants'
+import { progressGradedByOptions, goalTypeItems } from '@/constants'
 import { v7 as uuidv7 } from 'uuid'
-import { sub } from 'date-fns'
 
 const goalsStore = useGoalsStore()
 const props = defineProps(['selectedChildId', 'currentGrade'])
@@ -11,7 +10,6 @@ const emit = defineEmits(['goal-added'])
 
 const step = ref(1)
 const items = ['Add Goal', 'Review Goal', 'Submit Goal']
-const goalTypeItems = ['Academic', 'Functional', 'Related Services']
 
 const goalFocus = ref('')
 const goalType = ref(goalTypeItems[0])
@@ -71,13 +69,13 @@ const addGoal = async () => {
     const gradeLevel = props.currentGrade
     if (!id || !gradeLevel) throw new Error('Child ID or Grade Level missing')
 
-    const goalsData = {
-      goals: [singleGoal],
-      id,
-      grade: gradeLevel
+    const goalDoc = {
+      ...singleGoal,
+      studentId: id,
+      gradeLevel: gradeLevel
     }
 
-    await goalsStore.addGoalsToGradeLevel(goalsData)
+    await goalsStore.addGoal(goalDoc)
 
     submitSuccess.value = 'Goal successfully submitted!'
     emit('goal-added')
@@ -147,6 +145,12 @@ const addGoal = async () => {
                 <v-text-field v-model="duration" label="Duration" />
               </v-col>
 
+              <!-- Add Benchmark Button ABOVE the inputs -->
+              <v-col cols="12" class="d-flex justify-end mb-2">
+                <v-btn @click="addBenchmark">Add Benchmark</v-btn>
+              </v-col>
+
+              <!-- Benchmarks Input Fields -->
               <v-col cols="12" v-for="(benchmark, index) in benchmarks" :key="index">
                 <v-text-field v-model="benchmarks[index]" label="Benchmark">
                   <template #append-inner>
@@ -155,10 +159,6 @@ const addGoal = async () => {
                     </v-icon>
                   </template>
                 </v-text-field>
-              </v-col>
-
-              <v-col cols="12" class="d-flex justify-end">
-                <v-btn @click="addBenchmark">Add Benchmark</v-btn>
               </v-col>
 
               <v-col cols="12">

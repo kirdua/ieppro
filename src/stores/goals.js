@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { doc, goalsCollection } from '@/lib/firebaseClient'
-import { setDoc, getDoc, getDocs, deleteDoc, query, where } from 'firebase/firestore'
+import { setDoc, updateDoc, getDocs, deleteDoc, query, where } from 'firebase/firestore'
 import moment from 'moment'
 
 const useGoalsStore = defineStore('goals', () => {
@@ -25,11 +25,11 @@ const useGoalsStore = defineStore('goals', () => {
     addGoalsModalVisible.value = !addGoalsModalVisible.value
   }
 
-  const addGoalsToGradeLevel = async (data) => {
+  const addGoal = async (data) => {
     const goalsData = {
       ...data,
-      createdOn: formatDate,
-      updatedOn: formatDate
+      createdOn: moment().format(),
+      updatedOn: moment().format()
     }
 
     const goalDocRef = doc(goalsCollection)
@@ -38,24 +38,16 @@ const useGoalsStore = defineStore('goals', () => {
 
   const getGoalsByGradeLevel = async ({ id, gradeLevel }) => {
     try {
-      const q = query(goalsCollection, where('id', '==', id), where('grade', '==', gradeLevel))
+      const q = query(
+        goalsCollection,
+        where('studentId', '==', id),
+        where('gradeLevel', '==', gradeLevel)
+      )
       const querySnapshot = await getDocs(q)
 
-      if (querySnapshot.empty) {
-        console.log('No matching documents.')
-        goals.value = []
-        return
-      }
-
       const goalsList = []
-
       querySnapshot.forEach((docSnap) => {
-        const data = docSnap.data()
-        if (data.goals && Array.isArray(data.goals)) {
-          data.goals.forEach((goal) => {
-            goalsList.push({ ...goal, _docId: docSnap.id }) // Attach Firestore doc ID
-          })
-        }
+        goalsList.push({ ...docSnap.data(), _docId: docSnap.id })
       })
 
       goals.value = goalsList
@@ -76,7 +68,26 @@ const useGoalsStore = defineStore('goals', () => {
     }
   }
 
-  const updateGoalsByGradeLevel = () => {}
+  const updateGoal = async (updatedGoal) => {
+    try {
+      if (!updatedGoal._docId) throw new Error('Missing document ID on goal')
+
+      const docRef = doc(goalsCollection, updatedGoal._docId)
+      const { _docId, ...goalData } = updatedGoal
+
+      await updateDoc(docRef, {
+        ...goalData,
+        updatedOn: moment().format()
+      })
+
+      goals.value = goals.value.map((g) => (g._docId === _docId ? { ...updatedGoal } : g))
+
+      console.log('✅ Goal updated')
+    } catch (err) {
+      console.error('❌ Error updating goal:', err)
+    }
+  }
+
   return {
     goals,
     modalIsVisible,
@@ -85,9 +96,9 @@ const useGoalsStore = defineStore('goals', () => {
     selectedGoalRow,
     addGoalsModalVisible,
     toggleModal,
-    addGoalsToGradeLevel,
+    addGoal,
     getGoalsByGradeLevel,
-    updateGoalsByGradeLevel,
+    updateGoal,
     toggleGoalsDrawer,
     toggleAddGoalsModal,
     deleteGoal

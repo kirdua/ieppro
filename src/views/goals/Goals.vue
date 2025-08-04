@@ -104,6 +104,11 @@ const deleteGoal = async () => {
     console.error('Failed to delete goal:', err)
   }
 }
+
+const handleGoalSave = async (updatedGoal) => {
+  await goalsStore.updateGoal(updatedGoal)
+  await getGoals()
+}
 </script>
 
 <template>
@@ -146,7 +151,7 @@ const deleteGoal = async () => {
       />
     </div>
 
-    <GoalsSidebar v-model:show="showSidebar" :goal="selectedGoal" />
+    <GoalsSidebar v-model:show="showSidebar" :goal="selectedGoal" @save="handleGoalSave" />
     <AddGoalModal
       :selectedChildId="selectedChildId"
       :currentGrade="currentGrade"
