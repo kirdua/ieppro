@@ -51,6 +51,7 @@ export const useUserStore = defineStore('user', () => {
         return
       }
 
+      console.log('🔥 User credentials:', userCred)
       console.log('✅ Firebase Login Successful:', userCred.user.uid)
 
       const userDocRef = doc(usersCollection, userCred.user.uid)

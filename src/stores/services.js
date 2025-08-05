@@ -1,3 +1,4 @@
+// servicesStore.js or services.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { servicesCollection } from '@/lib/firebaseClient'
@@ -5,53 +6,43 @@ import { addDoc, getDocs, query, where } from 'firebase/firestore'
 
 const useServicesStore = defineStore('services', () => {
   const currentServices = ref([])
-  const currentChildProfile = ref({})
+  const addServiceModalVisible = ref(false)
+
+  const toggleAddScheduledServicesModal = () => {
+    addServiceModalVisible.value = !addServiceModalVisible.value
+  }
 
   const getServicesByGradeLevel = async ({ id, gradeLevel }) => {
     try {
       const q = query(
         servicesCollection,
         where('childId', '==', id),
-        where('gradeLevel', '==', gradeLevel) // Query by childId only
+        where('gradeLevel', '==', gradeLevel)
       )
 
       const querySnapshot = await getDocs(q)
-
       const services = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-
-        if (data.services && Array.isArray(data.services)) {
-          // Merge nested services arrays into the services array
-          services.push(...data.services)
-        } else {
-          console.warn('Services array not found or not an array in document:', doc.id)
-        }
-      })
+      querySnapshot.forEach((doc) => services.push({ ...doc.data(), id: doc.id }))
       currentServices.value = services
     } catch (error) {
       console.error('Error fetching services:', error)
     }
   }
 
-  const addScheduledServices = async (params) => {
-    const { id, grade, services } = params
+  const addScheduledService = async (serviceObj) => {
     try {
-      await addDoc(servicesCollection, {
-        childId: id,
-        gradeLevel: grade,
-        services
-      })
+      await addDoc(servicesCollection, serviceObj)
     } catch (error) {
-      console.error(error)
+      console.error('Error adding service:', error)
     }
   }
 
   return {
     currentServices,
     getServicesByGradeLevel,
-    addScheduledServices,
-    currentChildProfile
+    addScheduledService,
+    addServiceModalVisible,
+    toggleAddScheduledServicesModal
   }
 })
 

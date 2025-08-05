@@ -22,9 +22,9 @@ const goToProfile = () => {
   router.push('/user')
 }
 
-const goToIepUpload = () => {
-  router.push({ name: 'iepupload' })
-}
+// const goToIepUpload = () => {
+//   router.push({ name: 'iepupload' })
+// }
 
 const logoutHandler = async () => {
   await logout()
@@ -33,7 +33,7 @@ const logoutHandler = async () => {
 
 const items = [
   { title: 'Profile', action: goToProfile, icon: 'mdi-account' },
-  { title: 'Upload IEP', action: goToIepUpload, icon: 'mdi-file-upload' },
+  // { title: 'Upload IEP', action: goToIepUpload, icon: 'mdi-file-upload' },
   { title: 'Logout', action: logoutHandler, icon: 'mdi-logout' }
 ]
 
@@ -45,10 +45,14 @@ watch(
   }
 )
 
-const handleAddScheduledServices = () => {
+const handleOldFlowScheduledServices = () => {
   const currentChildProfile = servicesStore.currentChildProfile.value
   const { id, gradeLevel } = currentChildProfile
   router.push({ name: 'add-services', query: { id, grade: gradeLevel } })
+}
+
+const handleAddScheduledServices = () => {
+  servicesStore.toggleAddScheduledServicesModal()
 }
 
 const handleAddGoals = () => {
@@ -75,6 +79,12 @@ const handleAddGoals = () => {
       v-if="currentTitle === 'Scheduled Services'"
       :buttonText="'Add Scheduled Services'"
       :handleClick="handleAddScheduledServices"
+    />
+
+    <add-button
+      v-if="currentTitle === 'Scheduled Services'"
+      :buttonText="'Add Services Old Flow'"
+      :handleClick="handleOldFlowScheduledServices"
     />
 
     <add-button

@@ -1,20 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref } from 'vue'
 import useServicesStore from '@/stores/services'
-import {
-  servicesHeaders,
-  semesterOptions,
-  locationOptions,
-  progressGradedByOptions
-} from '@/constants'
-import { toast } from 'vue3-toastify'
+import { semesterOptions, locationOptions, progressGradedByOptions } from '@/constants'
 import VueDatePicker from '@vuepic/vue-datepicker'
+import { toast } from 'vue3-toastify'
 
-const route = useRoute()
+const props = defineProps(['selectedChildId', 'currentGrade'])
 const servicesStore = useServicesStore()
 
-const sheet = ref(false)
+const step = ref(1)
+const items = ['Add Service', 'Review Service', 'Submit Service']
 
 const selectedSemester = ref(null)
 const year = ref('')
@@ -27,33 +22,7 @@ const progressGradedBy = ref('')
 const startDate = ref('')
 const endDate = ref('')
 
-const servicesScheduled = ref()
-
-onMounted(() => {
-  const { id, grade } = route.query
-  if (id && grade) {
-    sheet.value = true
-  }
-})
-
-const submitScheduledServices = async () => {
-  const { id, grade } = route.query
-  const obj = {
-    id,
-    grade,
-    services: servicesScheduled.value
-  }
-
-  try {
-    await servicesStore.addScheduledServices(obj)
-    toast.success('Scheduled Services added')
-  } catch (error) {
-    console.error('error: ', error)
-    toast.error(error?.response?.data?.message || 'Failed to save scheduled services')
-  }
-}
-
-const clearServicesForms = () => {
+const clearForm = () => {
   selectedSemester.value = null
   year.value = ''
   course.value = ''
@@ -64,47 +33,49 @@ const clearServicesForms = () => {
   progressGradedBy.value = ''
   startDate.value = ''
   endDate.value = ''
+  step.value = 1
 }
 
-const addCourse = () => {
-  const obj = {
-    semester: selectedSemester.value,
-    year: year.value,
-    course: course.value,
-    location: location.value,
-    genEdModified: genEdModified.value,
-    genEducationTime: genEdTime.value,
-    specialEducationTime: specialEdTime.value,
-    gradedBy: progressGradedBy.value,
-    startDate: startDate.value,
-    endDate: endDate.value
-  }
+const submitScheduledService = async () => {
+  try {
+    if (!props.selectedChildId || !props.currentGrade) {
+      throw new Error('Missing child or grade')
+    }
 
-  if (Array.isArray(servicesScheduled.value)) {
-    servicesScheduled.value.push(obj) // Push new object to the array
-  } else {
-    servicesScheduled.value = [obj]
+    const newService = {
+      studentId: props.selectedChildId,
+      gradeLevel: props.currentGrade,
+      semester: selectedSemester.value,
+      year: year.value,
+      course: course.value,
+      location: location.value,
+      genEdModified: genEdModified.value,
+      genEducationTime: genEdTime.value,
+      specialEducationTime: specialEdTime.value,
+      gradedBy: progressGradedBy.value,
+      startDate: startDate.value,
+      endDate: endDate.value,
+      createdDate: new Date().toISOString()
+    }
+
+    await servicesStore.addScheduledService(newService)
+
+    toast.success('Service added successfully!')
+    clearForm()
+    servicesStore.toggleAddScheduledServicesModal()
+  } catch (error) {
+    console.error(error)
+    toast.error(error.message || 'Failed to add service')
   }
 }
 
 const formatStartDate = (date) => {
-  const day = date.getDate()
-  const month = date.getMonth() + 1
-  const year = date.getFullYear()
-
-  const currentDate = `${month}/${day}/${year}`
-  startDate.value = currentDate
-  return `Start date will be ${month}/${day}/${year}`
+  const d = new Date(date)
+  startDate.value = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
 }
-
 const formatEndDate = (date) => {
-  const day = date.getDate()
-  const month = date.getMonth() + 1
-  const year = date.getFullYear()
-
-  const currentDate = `${month}/${day}/${year}`
-  endDate.value = currentDate
-  return `End date will be ${currentDate}`
+  const d = new Date(date)
+  endDate.value = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
 }
 </script>
 
@@ -126,7 +97,7 @@ const formatEndDate = (date) => {
         <v-data-table
           :headers="servicesHeaders"
           :items="servicesScheduled"
-          :no-data-text="'Add Goals'"
+          :no-data-text="'Add Services to Schedule'"
         >
           <template #bottom></template>
         </v-data-table>

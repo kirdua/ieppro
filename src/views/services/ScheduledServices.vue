@@ -5,7 +5,9 @@ import useServicesStore from '@/stores/services'
 import useChildrenStore from '@/stores/children'
 import { gradeLevels } from '@/utils/child-options'
 
+import NoServices from './NoServices.vue'
 import ServicesTable from './ServicesTable.vue'
+import AddServicesModal from './components/AddServicesModal.vue'
 
 const userStore = useUserStore()
 const childStore = useChildrenStore()
@@ -60,19 +62,18 @@ watch(
 )
 
 const getServices = async () => {
-  isLoading.value = true
-  const params = {
-    id: selectedChildId.value,
-    gradeLevel: currentGrade.value
-  }
-  servicesStore.currentChildProfile.value = params
-
-  try {
-    await servicesStore.getServicesByGradeLevel(params)
-  } catch (error) {
-    console.error(error?.response?.data?.message)
-  }
-  isLoading.value = false
+  // isLoading.value = true
+  // const params = {
+  //   id: selectedChildId.value,
+  //   gradeLevel: currentGrade.value
+  // }
+  // servicesStore.currentChildProfile.value = params
+  // try {
+  //   await servicesStore.getServicesByGradeLevel(params)
+  // } catch (error) {
+  //   console.error(error?.response?.data?.message)
+  // }
+  // isLoading.value = false
 }
 </script>
 <template>
@@ -97,6 +98,14 @@ const getServices = async () => {
         :disabled="isLoading"
       ></v-select>
     </div>
-    <ServicesTable :isLoading="isLoading" :items="servicesStore.currentServices" />
+
+    <div v-if="servicesStore.currentServices.length === 0 && !isLoading">
+      <NoServices />
+    </div>
+    <div v-else>
+      <ServicesTable :isLoading="isLoading" :items="servicesStore.currentServices" />
+    </div>
+
+    <AddServicesModal :selectedChildId="selectedChildId" :currentGrade="currentGrade" />
   </div>
 </template>

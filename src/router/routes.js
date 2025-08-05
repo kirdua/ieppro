@@ -72,7 +72,7 @@ const routes = [
   {
     path: '/scheduled-services',
     name: 'scheduled-services',
-    component: () => import('@/views/services/scheduled/ScheduledServices.vue'),
+    component: () => import('@/views/services/ScheduledServices.vue'),
     beforeEnter(to, from, next) {
       next()
     },
