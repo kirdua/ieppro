@@ -8,7 +8,8 @@ export const servicesHeaders = [
   { title: 'Special Ed Time', align: 'center', key: 'specialEducationTime' },
   { title: 'Progress Graded by', align: 'center', key: 'gradedBy' },
   { title: 'Start Date', align: 'center', key: 'startDate' },
-  { title: 'End Date', align: 'center', key: 'endDate' }
+  { title: 'End Date', align: 'center', key: 'endDate' },
+  { title: 'Actions', align: 'center', key: 'actions', sortable: false }
 ]
 
 export const goalHeaders = [

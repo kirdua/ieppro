@@ -1,20 +1,20 @@
 <script setup>
 import { ref } from 'vue'
 import { semesterOptions, locationOptions, progressGradedByOptions } from '@/constants'
-import VueDatePicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
 import useServicesStore from '@/stores/services'
 
 const props = defineProps({
   selectedChildId: String,
   currentGrade: String
 })
+const emit = defineEmits(['service-added'])
 
 const servicesStore = useServicesStore()
 
 const step = ref(1)
 const items = ['Add Service', 'Review Service', 'Submit Service']
 
+// Form fields
 const selectedSemester = ref(null)
 const year = ref('')
 const course = ref('')
@@ -26,7 +26,13 @@ const progressGradedBy = ref('')
 const startDate = ref('')
 const endDate = ref('')
 
-const clearServicesForms = () => {
+// Save state
+const isSaving = ref(false)
+const saveStatus = ref(null)
+
+const formRef = ref(null)
+
+const resetForm = () => {
   selectedSemester.value = null
   year.value = ''
   course.value = ''
@@ -35,54 +41,56 @@ const clearServicesForms = () => {
   genEdTime.value = ''
   specialEdTime.value = ''
   progressGradedBy.value = ''
-  startDate.value = null
-  endDate.value = null
+  startDate.value = ''
+  endDate.value = ''
+  step.value = 1
+  saveStatus.value = null
 }
 
 const submitScheduledServices = async () => {
-  // const newService = {
-  //   childId: props.selectedChildId,
-  //   gradeLevel: props.currentGrade,
-  //   semester: selectedSemester.value,
-  //   year: year.value,
-  //   course: course.value,
-  //   location: location.value,
-  //   genEdModified: genEdModified.value,
-  //   genEducationTime: genEdTime.value,
-  //   specialEducationTime: specialEdTime.value,
-  //   gradedBy: progressGradedBy.value,
-  //   startDate: startDate.value,
-  //   endDate: endDate.value
-  // }
-  // try {
-  //   await servicesStore.addScheduledService(newService)
-  //   toast.success('Service added')
-  //   clearServicesForms()
-  //   servicesStore.toggleAddScheduledServicesModal()
-  // } catch (error) {
-  //   console.error(error)
-  //   toast.error('Failed to add service')
-  // }
-}
+  isSaving.value = true
+  saveStatus.value = null
 
-const formatStartDate = (date) => {
-  const day = date.getDate()
-  const month = date.getMonth() + 1
-  const year = date.getFullYear()
+  if (
+    !selectedSemester.value ||
+    !year.value ||
+    !course.value ||
+    !location.value ||
+    !startDate.value ||
+    !endDate.value
+  ) {
+    saveStatus.value = 'Please fill in all required fields.'
+    isSaving.value = false
+    return
+  }
 
-  const currentDate = `${month}/${day}/${year}`
-  startDate.value = currentDate
-  return `Start date will be ${month}/${day}/${year}`
-}
+  const newService = {
+    childId: props.selectedChildId,
+    gradeLevel: props.currentGrade,
+    semester: selectedSemester.value,
+    year: year.value,
+    course: course.value,
+    location: location.value,
+    genEdModified: genEdModified.value,
+    genEducationTime: genEdTime.value,
+    specialEducationTime: specialEdTime.value,
+    gradedBy: progressGradedBy.value,
+    startDate: startDate.value,
+    endDate: endDate.value
+  }
 
-const formatEndDate = (date) => {
-  const day = date.getDate()
-  const month = date.getMonth() + 1
-  const year = date.getFullYear()
+  try {
+    await servicesStore.addScheduledService(newService)
 
-  const currentDate = `${month}/${day}/${year}`
-  endDate.value = currentDate
-  return `End date will be ${currentDate}`
+    saveStatus.value = 'Service successfully submitted!'
+    emit('service-added')
+    resetForm()
+  } catch (error) {
+    console.error(error)
+    saveStatus.value = 'Failed to submit Service.'
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>
 
@@ -109,67 +117,65 @@ const formatEndDate = (date) => {
       </template>
 
       <v-stepper v-model="step" :items="items" show-actions>
+        <!-- Step 1: Form -->
         <template #item.1>
           <v-card-text>
-            <v-row>
-              <v-col cols="3">
-                <v-select v-model="selectedSemester" :items="semesterOptions" label="Semester" />
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="year" label="Year" placeholder="2023-2024" />
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="course" label="Course" placeholder="Math, Reading, etc." />
-              </v-col>
-              <v-col cols="3">
-                <v-select v-model="location" :items="locationOptions" label="Location" />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="3">
-                <v-checkbox v-model="genEdModified" label="Gen Ed Modified" color="primary" />
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="genEdTime" label="Gen Ed Time" placeholder="20" />
-              </v-col>
-              <v-col cols="3">
-                <v-text-field v-model="specialEdTime" label="SpEd Time" placeholder="20" />
-              </v-col>
-              <v-col cols="3">
-                <v-select
-                  v-model="progressGradedBy"
-                  label="Graded by"
-                  :items="progressGradedByOptions"
-                />
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6">
-                <VueDatePicker
-                  v-model="startDate"
-                  placeholder="Start Date"
-                  :format="formatStartDate"
-                  :teleport="true"
-                >
-                  <template #time-picker> </template>
-                  <template #action-buttons> </template>
-                </VueDatePicker>
-              </v-col>
-              <v-col cols="6">
-                <VueDatePicker
-                  v-model="endDate"
-                  placeholder="End Date"
-                  :format="formatEndDate"
-                  :teleport="true"
-                >
-                  <template #time-picker> </template>
-                  <template #action-buttons> </template>
-                </VueDatePicker>
-              </v-col>
-            </v-row>
+            <v-form ref="formRef" validate-on="input">
+              <v-row>
+                <v-col cols="3">
+                  <v-select v-model="selectedSemester" :items="semesterOptions" label="Semester" />
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field v-model="year" label="Year" placeholder="2023-2024" />
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field v-model="course" label="Course" placeholder="Math, Reading, etc." />
+                </v-col>
+                <v-col cols="3">
+                  <v-select v-model="location" :items="locationOptions" label="Location" />
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="3">
+                  <v-checkbox v-model="genEdModified" label="Gen Ed Modified" color="primary" />
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field
+                    v-model="genEdTime"
+                    label="General Education Time"
+                    placeholder="20"
+                  />
+                </v-col>
+                <v-col cols="3">
+                  <v-text-field
+                    v-model="specialEdTime"
+                    label="Special Education Time"
+                    placeholder="20"
+                  />
+                </v-col>
+                <v-col cols="3">
+                  <v-select
+                    v-model="progressGradedBy"
+                    label="Graded by"
+                    :items="progressGradedByOptions"
+                  />
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field v-model="startDate" label="Start Date" placeholder="01/01/2025" />
+                </v-col>
+                <v-col cols="6">
+                  <v-text-field v-model="endDate" label="End Date" placeholder="01/01/2025" />
+                </v-col>
+              </v-row>
+            </v-form>
           </v-card-text>
         </template>
 
+        <!-- Step 2: Review -->
         <template #item.2>
           <v-card-text>
             <h5 class="mb-4">Review Your Service Information</h5>
@@ -181,22 +187,37 @@ const formatEndDate = (date) => {
                 <strong>Location:</strong> {{ location }}<br />
                 <strong>Start Date:</strong> {{ startDate }}<br />
               </v-col>
-
               <v-col cols="6">
                 <strong>Gen Ed Modified:</strong> {{ genEdModified ? 'Yes' : 'No' }}<br />
                 <strong>Gen Ed Time:</strong> {{ genEdTime }} minutes<br />
                 <strong>SpEd Time:</strong> {{ specialEdTime }} minutes<br />
                 <strong>Graded By:</strong> {{ progressGradedBy }}<br />
-                <strong>End Date:</strong>
-                {{ endDate }}
+                <strong>End Date:</strong> {{ endDate }}
               </v-col>
             </v-row>
           </v-card-text>
         </template>
 
+        <!-- Step 3: Save -->
         <template #item.3>
           <v-card-text class="text-center">
-            <v-btn variant="outlined" color="primary" @click="submitScheduledServices">
+            <div v-if="isSaving">Saving...</div>
+            <div v-else-if="saveStatus === 'success'" class="text-success">
+              <v-icon>mdi-check-circle</v-icon>
+              {{ saveStatus }}
+            </div>
+            <div v-else-if="saveStatus === 'error'" class="text-error">
+              {{ saveStatus }}
+            </div>
+            <h3 class="mb-4">Are you sure you want to submit this service?</h3>
+            <v-btn
+              variant="outlined"
+              color="primary"
+              class="mt-4"
+              :loading="isSaving"
+              :disabled="isSaving"
+              @click="submitScheduledServices"
+            >
               Submit Service
             </v-btn>
           </v-card-text>
@@ -205,10 +226,3 @@ const formatEndDate = (date) => {
     </v-card>
   </v-dialog>
 </template>
-
-<style scoped>
-.dp__menu {
-  top: 100px !important;
-  left: 300px !important;
-}
-</style>

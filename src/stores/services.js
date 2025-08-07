@@ -1,4 +1,3 @@
-// servicesStore.js or services.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { servicesCollection } from '@/lib/firebaseClient'

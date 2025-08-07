@@ -62,18 +62,24 @@ watch(
 )
 
 const getServices = async () => {
-  // isLoading.value = true
-  // const params = {
-  //   id: selectedChildId.value,
-  //   gradeLevel: currentGrade.value
-  // }
-  // servicesStore.currentChildProfile.value = params
-  // try {
-  //   await servicesStore.getServicesByGradeLevel(params)
-  // } catch (error) {
-  //   console.error(error?.response?.data?.message)
-  // }
-  // isLoading.value = false
+  isLoading.value = true
+  const params = {
+    id: selectedChildId.value,
+    gradeLevel: currentGrade.value
+  }
+  servicesStore.currentChildProfile = params
+  try {
+    await servicesStore.getServicesByGradeLevel(params)
+  } catch (error) {
+    console.error(error?.response?.data?.message)
+  }
+  isLoading.value = false
+}
+
+const showDeleteDialog = (service) => {
+  console.log('Show delete dialog for service:', service)
+  // servicesStore.deleteDialogVisible = true
+  // servicesStore.serviceToDelete = service
 }
 </script>
 <template>
@@ -103,9 +109,17 @@ const getServices = async () => {
       <NoServices />
     </div>
     <div v-else>
-      <ServicesTable :isLoading="isLoading" :items="servicesStore.currentServices" />
+      <ServicesTable
+        :isLoading="isLoading"
+        :items="servicesStore.currentServices"
+        @delete-service="showDeleteDialog"
+      />
     </div>
 
-    <AddServicesModal :selectedChildId="selectedChildId" :currentGrade="currentGrade" />
+    <AddServicesModal
+      :selectedChildId="selectedChildId"
+      :currentGrade="currentGrade"
+      @service-added="getServices"
+    />
   </div>
 </template>

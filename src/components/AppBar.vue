@@ -82,12 +82,6 @@ const handleAddGoals = () => {
     />
 
     <add-button
-      v-if="currentTitle === 'Scheduled Services'"
-      :buttonText="'Add Services Old Flow'"
-      :handleClick="handleOldFlowScheduledServices"
-    />
-
-    <add-button
       v-if="currentTitle === 'Goals'"
       :buttonText="'Add Goal'"
       :handleClick="handleAddGoals"
