@@ -1,15 +1,10 @@
 export const servicesHeaders = [
-  { title: 'Semester', align: 'center', key: 'semester' },
-  { title: 'Year', align: 'center', key: 'year' },
-  { title: 'Course/Curriculum', align: 'center', key: 'course' },
-  { title: 'Location', align: 'center', key: 'location' },
-  { title: 'Gen Ed Modified', align: 'center', key: 'genEdModified' },
-  { title: 'Gen Ed Time', align: 'center', key: 'genEducationTime' },
-  { title: 'Special Ed Time', align: 'center', key: 'specialEducationTime' },
-  { title: 'Progress Graded by', align: 'center', key: 'gradedBy' },
-  { title: 'Start Date', align: 'center', key: 'startDate' },
-  { title: 'End Date', align: 'center', key: 'endDate' },
-  { title: 'Actions', align: 'center', key: 'actions', sortable: false }
+  { title: 'Semester', align: 'left', key: 'semester' },
+  { title: 'Course', align: 'left', key: 'course' },
+  { title: 'Gen Ed Modified', align: 'left', key: 'genEdModified' },
+  { title: 'Start Date', align: 'left', key: 'startDate' },
+  { title: 'End Date', align: 'left', key: 'endDate' },
+  { title: 'Actions', align: 'left', key: 'actions', sortable: false }
 ]
 
 export const goalHeaders = [

@@ -8,6 +8,8 @@ import { gradeLevels } from '@/utils/child-options'
 import NoServices from './NoServices.vue'
 import ServicesTable from './ServicesTable.vue'
 import AddServicesModal from './components/AddServicesModal.vue'
+import ServiceSidebar from './components/ServiceSidebar.vue'
+import DeleteServiceDialog from './components/DeleteServiceDialog.vue'
 
 const userStore = useUserStore()
 const childStore = useChildrenStore()
@@ -19,6 +21,11 @@ const currentGrade = ref('')
 const selectedChildId = ref(null)
 const childOptions = ref([])
 const isLoading = ref(false)
+const showSidebar = ref(false)
+const selectedService = ref(null)
+
+const deleteDialogVisible = ref(false)
+const serviceToDelete = ref(null)
 
 onMounted(async () => {
   isLoading.value = true
@@ -76,10 +83,35 @@ const getServices = async () => {
   isLoading.value = false
 }
 
+const handleRowClick = (service) => {
+  selectedService.value = service
+  showSidebar.value = true
+}
+
+const handleServiceSave = async (updatedService) => {
+  showSidebar.value = false
+  await servicesStore.updateScheduledService(updatedService)
+  getServices()
+}
+
 const showDeleteDialog = (service) => {
-  console.log('Show delete dialog for service:', service)
-  // servicesStore.deleteDialogVisible = true
-  // servicesStore.serviceToDelete = service
+  serviceToDelete.value = service
+  deleteDialogVisible.value = true
+}
+
+const closeDeleteDialog = () => {
+  deleteDialogVisible.value = false
+  serviceToDelete.value = null
+}
+
+const deleteService = async () => {
+  try {
+    await servicesStore.deleteScheduledService(serviceToDelete.value.id)
+    closeDeleteDialog()
+    getServices()
+  } catch (error) {
+    console.error(error?.response?.data?.message)
+  }
 }
 </script>
 <template>
@@ -105,21 +137,38 @@ const showDeleteDialog = (service) => {
       ></v-select>
     </div>
 
-    <div v-if="servicesStore.currentServices.length === 0 && !isLoading">
+    <div v-if="isLoading" class="text-center mt-4">
+      <v-progress-circular indeterminate color="primary" />
+      <div class="mt-2">Loading Services...</div>
+    </div>
+
+    <div v-else-if="servicesStore.currentServices.length === 0">
       <NoServices />
     </div>
     <div v-else>
       <ServicesTable
         :isLoading="isLoading"
         :items="servicesStore.currentServices"
+        @row-clicked="handleRowClick"
         @delete-service="showDeleteDialog"
       />
     </div>
-
+    <ServiceSidebar
+      v-model:show="showSidebar"
+      :service="selectedService"
+      @save="handleServiceSave"
+    />
     <AddServicesModal
       :selectedChildId="selectedChildId"
       :currentGrade="currentGrade"
       @service-added="getServices"
+    />
+    <DeleteServiceDialog
+      v-if="deleteDialogVisible"
+      :service="serviceToDelete"
+      :showDeleteDialog="deleteDialogVisible"
+      @closeDeleteDialog="closeDeleteDialog"
+      @confirmDelete="deleteService"
     />
   </div>
 </template>

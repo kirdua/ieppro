@@ -182,7 +182,6 @@ const submitScheduledServices = async () => {
             <v-row>
               <v-col cols="6">
                 <strong>Semester:</strong> {{ selectedSemester }}<br />
-                <strong>Year:</strong> {{ year }}<br />
                 <strong>Course:</strong> {{ course }}<br />
                 <strong>Location:</strong> {{ location }}<br />
                 <strong>Start Date:</strong> {{ startDate }}<br />
