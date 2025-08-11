@@ -106,11 +106,14 @@ const closeDeleteDialog = () => {
 
 const deleteService = async () => {
   try {
+    isLoading.value = true
     await servicesStore.deleteScheduledService(serviceToDelete.value.id)
     closeDeleteDialog()
     getServices()
   } catch (error) {
     console.error(error?.response?.data?.message)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
