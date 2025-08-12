@@ -3,7 +3,7 @@ import { getAnalytics } from 'firebase/analytics'
 import { getAuth } from 'firebase/auth'
 import { getFirestore, collection, doc, serverTimestamp, addDoc } from 'firebase/firestore'
 
-const apiKey = import.meta.env.VITE_FIREBASE_APIKEY
+const apiKey = import.meta.env.VITE_FIREBASE_API
 const authDomain = import.meta.env.VITE_FIREBASE_AUTHDOMAIN
 const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID
 const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET
