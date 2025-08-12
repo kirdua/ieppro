@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import NoChild from './NoChild.vue'
 import ChildCard from '@/components/children/ChildCard.vue'
 import ChildDialog from '@/components/children/ChildDialog.vue'
 import useUserStore from '@/stores/user'
@@ -33,28 +34,38 @@ const getChildrenInfo = async () => {
 </script>
 <template>
   <div>
-    <v-progress-linear v-if="isLoading" color="cyan" indeterminate></v-progress-linear>
+    <!-- Loading bar -->
+    <v-progress-linear v-if="isLoading" color="cyan" indeterminate />
 
-    <v-row class="pa-3" justify="start">
+    <!-- Empty state (only after loading finishes) -->
+    <v-row v-else-if="childStore.children.length === 0" class="pa-3" justify="start">
+      <v-col cols="12">
+        <NoChild />
+      </v-col>
+    </v-row>
+
+    <!-- Children grid -->
+    <v-row v-else class="pa-3" justify="start">
       <v-col
         v-for="child in childStore.children"
-        :key="child._id"
+        :key="child.id || child._id"
         cols="12"
         sm="6"
         md="4"
         lg="3"
         xl="3"
       >
-        <child-card :child="child" @get-child-data="getChildrenInfo" />
+        <ChildCard :child="child" @get-child-data="getChildrenInfo" />
       </v-col>
     </v-row>
 
+    <!-- Add / Edit dialog trigger -->
     <v-row>
       <v-col>
-        <child-dialog
+        <ChildDialog
           :parentId="userInfo.uid"
-          @get-child-data="getChildrenInfo"
           :disabled="isLoading"
+          @get-child-data="getChildrenInfo"
         />
       </v-col>
     </v-row>
