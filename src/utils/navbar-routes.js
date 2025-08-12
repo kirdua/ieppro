@@ -20,7 +20,7 @@ const navbarRoutes = [
   {
     title: 'Scheduled Services',
     value: 'scheduled-services',
-    icon: 'mdi mdi-progress-wrench',
+    icon: 'mdi mdi-hand-heart',
     route: 'scheduled-services'
   }
   // {
