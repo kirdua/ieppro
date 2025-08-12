@@ -74,7 +74,7 @@ const goToAddServices = (id, grade) => {
       <v-tooltip text="Delete Profile" location="top">
         <template #activator="{ props: tooltip }">
           <v-btn icon v-bind="tooltip" variant="text" size="small" @click="deleteChildInfo">
-            <v-icon color="text-white">mdi-close</v-icon>
+            <v-icon color="text-white">mdi-trash-can-outline</v-icon>
           </v-btn>
         </template>
       </v-tooltip>
