@@ -22,13 +22,13 @@ const navbarRoutes = [
     value: 'scheduled-services',
     icon: 'mdi mdi-progress-wrench',
     route: 'scheduled-services'
-  },
-  {
-    title: 'Annual Progress Report',
-    value: 'progess',
-    icon: 'mdi mdi-chart-bell-curve',
-    route: 'progress'
   }
+  // {
+  //   title: 'Annual Progress Report',
+  //   value: 'progess',
+  //   icon: 'mdi mdi-chart-bell-curve',
+  //   route: 'progress'
+  // }
 ]
 
 export default navbarRoutes
