@@ -9,7 +9,6 @@ import 'vue3-toastify/dist/index.css'
 import '@vuepic/vue-datepicker/dist/main.css'
 
 const userStore = useUserStore()
-
 const isLoggedIn = computed(() => userStore.userLoggedIn)
 </script>
 
