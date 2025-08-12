@@ -79,6 +79,6 @@ export const goalTypeItems = ['Academic', 'Functional', 'Related Services']
 
 export const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_PUBLIC_CLOUDINARY_CLOUD_NAME
 export const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-export const CLOUDINARY_API_KEY = import.meta.env.EXPO_PUBLIC_CLOUDINARY_API_KEY
-export const CLOUDINARY_API_SECRET = import.meta.env.EXPO_PUBLIC_CLOUDINARY_SECRET
+export const CLOUDINARY_API_KEY = import.meta.env.EXPO_PUBLIC_CLOUDINARY_API
+export const CLOUDINARY_API_SECRET = import.meta.env.EXPO_PUBLIC_CLOUDINARY_SALT
 export const CLOUDINARY_URL = `CLOUDINARY_URL=cloudinary://${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}@${CLOUDINARY_CLOUD_NAME}`
