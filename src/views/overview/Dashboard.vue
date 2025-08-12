@@ -13,7 +13,7 @@
       <v-card-actions class="px-4 pb-4">
         <v-spacer />
         <v-btn variant="text" color="primary" :to="{ path: '/children' }">
-          <v-icon start icon="mdi-account" />
+          <v-icon start icon="mdi-account-school-outline" />
           Child Profile
         </v-btn>
         <v-btn variant="text" color="primary" :to="{ path: '/goals' }">
@@ -31,7 +31,7 @@
       <v-col cols="12" md="4">
         <v-card class="h-100 rounded-2xl">
           <v-card-title class="d-flex align-center gap-2">
-            <v-icon icon="mdi-account" />
+            <v-icon icon="mdi-account-school-outline" />
             Child Profile
           </v-card-title>
           <v-card-text>
