@@ -13,4 +13,8 @@ const app = createApp(App)
 loadFonts()
 console.log('Running in', import.meta.env.MODE, 'mode')
 
-app.use(router).use(store).use(vuetify).mount('#app')
+app.use(router)
+app.use(store)
+app.use(vuetify)
+
+router.isReady().then(() => app.mount('#app'))

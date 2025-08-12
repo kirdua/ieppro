@@ -19,7 +19,7 @@ const isLoggedIn = computed(() => userStore.userLoggedIn)
     <v-main>
       <app-bar v-if="isLoggedIn" />
       <router-view v-slot="{ Component }">
-        <component :is="Component"></component>
+        <component :is="Component" :key="$route.fullPath" />
       </router-view>
     </v-main>
   </v-app>

@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref(
     localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null
   )
-  const userLoggedIn = ref(userInfo.value !== null)
+  const userLoggedIn = ref(!!userInfo.value)
 
   const { uploadToCloudinary } = useCloudinary()
 
@@ -30,55 +30,34 @@ export const useUserStore = defineStore('user', () => {
       updatedAt: formatDate
     })
 
-    const currentUser = {
-      name,
-      uid: userCred.user.uid
-    }
-    userLoggedIn.value = true
-    localStorage.setItem('userInfo', JSON.stringify(currentUser))
+    const currentUser = { name, uid: userCred.user.uid }
+    // Ensure flags are set immediately after success
     userInfo.value = currentUser
+    localStorage.setItem('userInfo', JSON.stringify(currentUser))
+    userLoggedIn.value = true
   }
 
   const login = async (values) => {
     try {
-      console.log('🔥 login() function called')
-
       const { email, password } = values
       const userCred = await signInWithEmailAndPassword(auth, email, password)
-
-      if (!userCred?.user) {
-        console.error('❌ Login failed: No user returned')
-        return
-      }
-
-      console.log('🔥 User credentials:', userCred)
-      console.log('✅ Firebase Login Successful:', userCred.user.uid)
+      if (!userCred?.user) return
 
       const userDocRef = doc(usersCollection, userCred.user.uid)
       const userDoc = await getDoc(userDocRef)
 
+      let name = ''
       if (userDoc.exists()) {
         const userData = userDoc.data()
-        console.log('✅ Firestore User Data:', userData)
-
-        const currentUser = {
-          name: userData.name,
-          uid: userCred.user.uid
-        }
-
-        if (JSON.stringify(userInfo.value) === JSON.stringify(currentUser)) {
-          console.log('⚠️ User info is already set, avoiding redundant updates')
-          return
-        }
-
-        userInfo.value = currentUser
-        localStorage.setItem('userInfo', JSON.stringify(currentUser))
-        userLoggedIn.value = true
-
-        console.log('✅ User Info Set:', userInfo.value)
-      } else {
-        console.error('❌ No user document found in Firestore')
+        name = userData?.name || ''
       }
+
+      const currentUser = { name, uid: userCred.user.uid }
+
+      // ✅ FIX: no early return before setting flags
+      userInfo.value = currentUser
+      localStorage.setItem('userInfo', JSON.stringify(currentUser))
+      userLoggedIn.value = true
     } catch (error) {
       console.error('❌ Login error:', error)
     }

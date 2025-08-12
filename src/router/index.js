@@ -1,3 +1,4 @@
+// router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
 import useUserStore from '@/stores/user'
@@ -7,30 +8,22 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to) => {
   const store = useUserStore()
 
+  // Give Pinia/Firebase state a microtask to settle after login
+  await Promise.resolve()
+
   // If already logged in and trying to access login/register, redirect
-  if ((to.name === 'login' || to.name === 'register') && store.userLoggedIn) {
-    next({ name: 'overview' })
-    return
+  if (to.name === 'login' || to.name === 'register') {
+    return store.userLoggedIn ? { name: 'overview' } : true
   }
 
-  // Allow access to public routes
-  if (!to.meta.requiresAuth) {
-    console.log('✅ Route does not require auth, proceeding...')
-    next()
-    return
-  }
+  // Public routes
+  if (!to.meta?.requiresAuth) return true
 
-  // Check auth for protected routes
-  if (store.userLoggedIn) {
-    console.log('✅ User is logged in, proceeding...')
-    next()
-  } else {
-    console.log('🚨 User not logged in, redirecting to login...')
-    next({ name: 'login' })
-  }
+  // Protected routes
+  return store.userLoggedIn ? true : { name: 'login', query: { redirect: to.fullPath } }
 })
 
 export default router
