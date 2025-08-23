@@ -119,7 +119,7 @@ const submitChild = async () => {
     profileImage: uploadedImage || undefined,
     _id: _id.value || myuuid
   }
-
+  console.log('Child Info:', childInfo)
   try {
     if (childrenStore.editProfile) {
       await childrenStore.updateChildProfile(childInfo)
