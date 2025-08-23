@@ -133,6 +133,7 @@ const submitChild = async () => {
     emit('getChildData')
     clearForm()
   } catch (error) {
+    console.error(error)
     const updateAdd = childrenStore.editProfile ? 'update' : 'registration'
     toast.error(error?.response?.data?.message || `Child ${updateAdd} failed`)
   }
