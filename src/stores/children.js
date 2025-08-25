@@ -4,6 +4,17 @@ import { doc, childrenCollection } from '@/lib/firebaseClient'
 import { setDoc, getDocs, deleteDoc, query, where } from 'firebase/firestore'
 import moment from 'moment'
 
+/** same sanitizer as component; keeps Firestore happy */
+function stripUndefined(obj) {
+  if (obj == null || typeof obj !== 'object') return obj
+  const out = Array.isArray(obj) ? [] : {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === undefined) continue
+    out[k] = stripUndefined(v)
+  }
+  return out
+}
+
 const useChildrenStore = defineStore('children', () => {
   const modalIsVisible = ref(false)
   const children = ref([])
@@ -25,11 +36,12 @@ const useChildrenStore = defineStore('children', () => {
 
   const addChild = async (data) => {
     const { parentId } = data
-    const childProfile = {
+    const childProfile = stripUndefined({
       ...data,
       createdOn: formatDate,
       updatedOn: formatDate
-    }
+    })
+
     const childDocRef = doc(childrenCollection)
     await setDoc(childDocRef, childProfile)
     await getChildrenProfiles(parentId)
@@ -40,9 +52,9 @@ const useChildrenStore = defineStore('children', () => {
       const q = query(childrenCollection, where('parentId', '==', parentId))
       const querySnapshot = await getDocs(q)
       const childrenData = []
-      querySnapshot.forEach((doc) => {
-        const data = doc.data()
-        const id = data._id
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data()
+        const id = data._id || docSnap.id
         childrenData.push({ id, ...data })
       })
       children.value = childrenData
@@ -53,19 +65,17 @@ const useChildrenStore = defineStore('children', () => {
 
   const updateChildProfile = async (data) => {
     try {
-      const querySnapshot = await getDocs(query(childrenCollection, where('_id', '==', data._id)))
-
-      if (!querySnapshot.empty) {
-        const docId = querySnapshot.docs[0].id
+      const qSnap = await getDocs(query(childrenCollection, where('_id', '==', data._id)))
+      if (!qSnap.empty) {
+        const docId = qSnap.docs[0].id
         const childDocRef = doc(childrenCollection, docId)
 
-        const profileData = {
+        const profileData = stripUndefined({
           ...data,
           updatedOn: formatDate
-        }
+        })
 
-        await setDoc(childDocRef, profileData)
-
+        await setDoc(childDocRef, profileData, { merge: true })
         await getChildrenProfiles(data.parentId)
       } else {
         console.error('Document with _id', data._id, 'not found.')
@@ -77,21 +87,15 @@ const useChildrenStore = defineStore('children', () => {
 
   const deleteChildProfile = async ({ _id, parentId }) => {
     try {
-      const q = query(
-        childrenCollection,
-        where('_id', '==', _id),
-        where('parentId', '==', parentId)
+      const qSnap = await getDocs(
+        query(childrenCollection, where('_id', '==', _id), where('parentId', '==', parentId))
       )
-      const querySnapshot = await getDocs(q)
 
-      // Check if any documents match the query
-      if (!querySnapshot.empty) {
-        querySnapshot.forEach(async (docSnapshot) => {
+      if (!qSnap.empty) {
+        for (const docSnapshot of qSnap.docs) {
           const childDocRef = doc(childrenCollection, docSnapshot.id)
           await deleteDoc(childDocRef)
-        })
-
-        // Refresh the profiles
+        }
         await getChildrenProfiles(parentId)
         console.log('Children profiles refreshed.')
       } else {

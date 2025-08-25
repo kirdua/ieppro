@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import {
   gradeLevels,
   diagnosesList,
@@ -14,14 +14,31 @@ import { readableTimestamp } from '@/utils/date-format'
 import { v7 as uuidv7 } from 'uuid'
 import TruncatedMultiSelect from './TruncatedMultiSelect.vue'
 
+/**
+ * Util: strip all undefined recursively so Firestore never sees it
+ */
+function stripUndefined(obj) {
+  if (obj == null || typeof obj !== 'object') return obj
+  const out = Array.isArray(obj) ? [] : {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === undefined) continue
+    out[k] = stripUndefined(v)
+  }
+  return out
+}
+
 const childrenStore = useChildrenStore()
 const myuuid = uuidv7()
 
 const { uploadToCloudinary, isUploading, uploadError } = useCloudinary()
 
-const props = defineProps(['parentId', 'disabled'])
+const props = defineProps({
+  parentId: { type: String, required: true },
+  disabled: { type: Boolean, default: false }
+})
 const emit = defineEmits(['getChildData'])
 
+/** form state */
 const name = ref('')
 const dateOfBirth = ref('')
 const currentSchool = ref('')
@@ -31,32 +48,24 @@ const diagnoses = ref([])
 const accommodations = ref([])
 const specialServices = ref([])
 const _id = ref('')
-const imageFile = ref([])
-const previewUrl = ref('')
 
+/** image handling */
+const imageFile = ref([]) // v-file-input model (array of File)
+const previewUrl = ref('') // blob or https for UI only
+const uploadedUrl = ref(null) // REAL https URL to save to Firestore (or null)
+
+/** validation */
 const { validateBirthDate } = useFormRules()
-
 const dateOfBirthRules = computed(() => [
   (value) => validateBirthDate(value) || 'Date must be in the format M/D/YYYY'
 ])
 
-const populateForm = () => {
-  const selectedChild = childrenStore.selectedChildProfile
-  const formattedDate = readableTimestamp(selectedChild.dateOfBirth)
-  if (selectedChild) {
-    name.value = selectedChild.name
-    dateOfBirth.value = formattedDate
-    currentSchool.value = selectedChild.currentSchool || ''
-    currentTeacher.value = selectedChild.currentTeacher || ''
-    gradeLevel.value = selectedChild.gradeLevel
-    diagnoses.value = selectedChild.diagnoses || []
-    accommodations.value = selectedChild.accommodations || []
-    specialServices.value = selectedChild.specialServices || []
-    _id.value = selectedChild._id
-
-    if (selectedChild.profileImage) {
-      previewUrl.value = selectedChild.profileImage
-    }
+/** helpers */
+function revokePreview() {
+  if (previewUrl.value?.startsWith('blob:')) {
+    try {
+      URL.revokeObjectURL(previewUrl.value)
+    } catch {}
   }
 }
 
@@ -70,8 +79,35 @@ const clearForm = () => {
   accommodations.value = []
   specialServices.value = []
   imageFile.value = []
+  revokePreview()
   previewUrl.value = ''
+  uploadedUrl.value = null
   _id.value = ''
+}
+
+const populateForm = () => {
+  const selectedChild = childrenStore.selectedChildProfile
+  if (!selectedChild) return
+
+  const formattedDate = readableTimestamp(selectedChild.dateOfBirth)
+  name.value = selectedChild.name || ''
+  dateOfBirth.value = formattedDate || ''
+  currentSchool.value = selectedChild.currentSchool || ''
+  currentTeacher.value = selectedChild.currentTeacher || ''
+  gradeLevel.value = selectedChild.gradeLevel || ''
+  diagnoses.value = selectedChild.diagnoses || []
+  accommodations.value = selectedChild.accommodations || []
+  specialServices.value = selectedChild.specialServices || []
+  _id.value = selectedChild._id || ''
+
+  // Existing profile image should be a persisted HTTPS url
+  if (selectedChild.profileImage) {
+    revokePreview()
+    previewUrl.value = selectedChild.profileImage
+    uploadedUrl.value = selectedChild.profileImage
+  } else {
+    uploadedUrl.value = null
+  }
 }
 
 watch(
@@ -86,10 +122,42 @@ watch(
   { immediate: true }
 )
 
-watch(imageFile, (files) => {
-  if (files?.[0]) {
-    previewUrl.value = URL.createObjectURL(files[0])
+/** Handle user picking a file:
+ *  - show blob preview immediately
+ *  - upload to Cloudinary
+ *  - store the real HTTPS url in uploadedUrl (to be saved)
+ */
+watch(imageFile, async (files) => {
+  const file = files?.[0]
+  if (!file) {
+    revokePreview()
+    previewUrl.value = ''
+    uploadedUrl.value = null
+    return
   }
+
+  // UI preview
+  revokePreview()
+  previewUrl.value = URL.createObjectURL(file)
+
+  // Upload
+  try {
+    const uploaded = await uploadToCloudinary(file)
+    const url = uploaded?.secure_url || uploaded?.url || null
+    if (!url) {
+      uploadedUrl.value = null
+      toast.error('Failed to upload image')
+      return
+    }
+    uploadedUrl.value = url
+  } catch (e) {
+    uploadedUrl.value = null
+    toast.error('Failed to upload image')
+  }
+})
+
+onUnmounted(() => {
+  revokePreview()
 })
 
 const submitChild = async () => {
@@ -97,16 +165,15 @@ const submitChild = async () => {
     return toast.error('Add child information')
   }
 
-  let uploadedImage = previewUrl.value
-
-  if (imageFile.value?.[0]) {
-    uploadedImage = await uploadToCloudinary(imageFile.value[0])
-    if (!uploadedImage) {
-      return toast.error('Failed to upload image')
-    }
+  // If a file was picked and upload still running, block submit
+  if (imageFile.value?.[0] && isUploading.value) {
+    return toast.info('Please wait for the photo to finish uploading…')
   }
 
-  const childInfo = {
+  // Never pass undefined: either a real url or null
+  const imageUrlToSave = uploadedUrl.value ?? null
+
+  const childInfo = stripUndefined({
     parentId: props.parentId,
     name: name.value,
     dateOfBirth: dateOfBirth.value,
@@ -116,10 +183,10 @@ const submitChild = async () => {
     diagnoses: diagnoses.value,
     accommodations: accommodations.value,
     specialServices: specialServices.value,
-    profileImage: uploadedImage || undefined,
+    profileImage: imageUrlToSave, // ✅ null or https URL
     _id: _id.value || myuuid
-  }
-  console.log('Child Info:', childInfo)
+  })
+
   try {
     if (childrenStore.editProfile) {
       await childrenStore.updateChildProfile(childInfo)
@@ -137,8 +204,6 @@ const submitChild = async () => {
     const updateAdd = childrenStore.editProfile ? 'update' : 'registration'
     toast.error(error?.response?.data?.message || `Child ${updateAdd} failed`)
   }
-
-  childrenStore.error = 'There is an error!'
 }
 
 const cancel = () => {
@@ -210,10 +275,10 @@ const cancel = () => {
         class="mb-2"
       />
 
-      <template v-slot:actions>
+      <template #actions>
         <v-spacer />
         <v-btn @click="cancel">Cancel</v-btn>
-        <v-btn @click="submitChild" color="primary">Submit</v-btn>
+        <v-btn :disabled="isUploading" @click="submitChild" color="primary">Submit</v-btn>
       </template>
     </v-card>
   </v-dialog>
