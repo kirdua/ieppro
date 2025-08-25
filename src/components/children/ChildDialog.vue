@@ -255,25 +255,25 @@ const cancel = () => {
         color="primary"
       />
 
-      <v-file-input
+      <!-- <v-file-input
         v-model="imageFile"
         label="Upload Child's Photo"
         accept="image/*"
         show-size
         prepend-icon="mdi-camera"
         class="mt-2"
-      />
+      /> -->
 
       <v-progress-linear v-if="isUploading" indeterminate color="primary" class="mb-2" />
       <v-img v-if="previewUrl" :src="previewUrl" max-height="150" contain class="mb-2" />
 
-      <v-alert
+      <!-- <v-alert
         v-if="uploadError"
         type="error"
         title="Upload Error"
         text="There was a problem uploading the image."
         class="mb-2"
-      />
+      /> -->
 
       <template #actions>
         <v-spacer />
