@@ -1,9 +1,8 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getAuth, setPersistence, browserSessionPersistence } from 'firebase/auth'
-import { getFirestore, collection, doc, serverTimestamp, addDoc } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore'
 
-// Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -14,28 +13,16 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
-await setPersistence(auth, browserSessionPersistence)
-const analytics = getAnalytics(app)
-const db = getFirestore(app)
+export const app = initializeApp(firebaseConfig)
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const analytics = getAnalytics(app)
 
-const usersCollection = collection(db, 'users')
-const childrenCollection = collection(db, 'children')
-const servicesCollection = collection(db, 'services')
-const goalsCollection = collection(db, 'goals')
-
-export {
-  app,
-  auth,
-  analytics,
-  db,
-  usersCollection,
-  childrenCollection,
-  servicesCollection,
-  goalsCollection,
-  doc,
-  serverTimestamp,
-  addDoc,
-  collection
+// expose a function to set persistence
+export async function initFirebasePersistence() {
+  try {
+    await setPersistence(auth, browserSessionPersistence)
+  } catch (err) {
+    console.error('setPersistence failed:', err)
+  }
 }
