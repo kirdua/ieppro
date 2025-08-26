@@ -1,109 +1,88 @@
 import { defineStore } from 'pinia'
-import { auth, usersCollection, doc } from '@/lib/firebaseClient'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-import { setDoc, getDoc, updateDoc } from 'firebase/firestore'
-import moment from 'moment'
 import { ref } from 'vue'
-import { useCloudinary } from '@/composables/useCloudinary'
+import { auth, usersCollection, doc } from '@/lib/firebaseClient'
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from 'firebase/auth'
+import { getDoc, setDoc, updateDoc } from 'firebase/firestore'
 
-export const useUserStore = defineStore('user', () => {
-  const userInfo = ref(
-    localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null
-  )
-  const userLoggedIn = ref(!!userInfo.value)
+let initPromise
 
-  const { uploadToCloudinary } = useCloudinary()
+export default defineStore('user', () => {
+  const userInfo = ref(null) // { uid, name?, email? ... }
+  const userLoggedIn = ref(false)
+  const isAuthReady = ref(false)
 
-  const register = async (values) => {
-    const { email, password, name, tos } = values
-    const userCred = await createUserWithEmailAndPassword(auth, email, password)
-    const userDocRef = doc(usersCollection, userCred.user.uid)
-
-    const formatDate = moment().format()
-
-    await setDoc(userDocRef, {
-      parentId: userCred.user.uid,
-      name,
-      email,
-      tos,
-      createdAt: formatDate,
-      updatedAt: formatDate
+  function initAuth() {
+    if (initPromise) return initPromise
+    initPromise = new Promise((resolve) => {
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          userInfo.value = null
+          userLoggedIn.value = false
+          isAuthReady.value = true
+          resolve()
+          return
+        }
+        const snap = await getDoc(doc(usersCollection, user.uid))
+        userInfo.value = { uid: user.uid, ...(snap.exists() ? snap.data() : {}) }
+        userLoggedIn.value = true
+        isAuthReady.value = true
+        resolve()
+      })
     })
+    return initPromise
+  }
 
-    const currentUser = { name, uid: userCred.user.uid }
-    // Ensure flags are set immediately after success
-    userInfo.value = currentUser
-    localStorage.setItem('userInfo', JSON.stringify(currentUser))
+  async function register({ email, password, name = '', tos = false }) {
+    if (!email || !password) throw new Error('auth/missing-credentials')
+    const cred = await createUserWithEmailAndPassword(auth, email.trim(), password)
+    const now = new Date().toISOString()
+    await setDoc(doc(usersCollection, cred.user.uid), {
+      parentId: cred.user.uid,
+      name,
+      email: email.trim(),
+      tos,
+      createdAt: now,
+      updatedAt: now
+    })
+    // listener will update state
+  }
+
+  async function login({ email, password }) {
+    if (!email || !password) throw new Error('auth/missing-credentials')
+    const cred = await signInWithEmailAndPassword(auth, email.trim(), password)
+    const snap = await getDoc(doc(usersCollection, cred.user.uid))
+    userInfo.value = { uid: cred.user.uid, ...(snap.exists() ? snap.data() : {}) }
     userLoggedIn.value = true
   }
 
-  const login = async (values) => {
-    try {
-      const { email, password } = values
-      const userCred = await signInWithEmailAndPassword(auth, email, password)
-      if (!userCred?.user) return
-
-      const userDocRef = doc(usersCollection, userCred.user.uid)
-      const userDoc = await getDoc(userDocRef)
-
-      let name = ''
-      if (userDoc.exists()) {
-        const userData = userDoc.data()
-        name = userData?.name || ''
-      }
-
-      const currentUser = { name, uid: userCred.user.uid }
-
-      // ✅ FIX: no early return before setting flags
-      userInfo.value = currentUser
-      localStorage.setItem('userInfo', JSON.stringify(currentUser))
-      userLoggedIn.value = true
-    } catch (error) {
-      console.error('❌ Login error:', error)
-    }
-  }
-
-  const logout = async () => {
+  async function logout() {
     await signOut(auth)
-    localStorage.removeItem('userInfo')
-    userLoggedIn.value = false
-    userInfo.value = null
+    // listener clears state
   }
 
-  const fetchUserProfile = async () => {
+  async function fetchUserProfile() {
     if (!userInfo.value?.uid) return
-    const userDocRef = doc(usersCollection, userInfo.value.uid)
-    const userDoc = await getDoc(userDocRef)
-    if (userDoc.exists()) {
-      userInfo.value = { ...userInfo.value, ...userDoc.data() }
-      localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
-    }
+    const snap = await getDoc(doc(usersCollection, userInfo.value.uid))
+    if (snap.exists()) userInfo.value = { uid: userInfo.value.uid, ...snap.data() }
   }
 
-  const updateUserProfile = async (updates) => {
+  async function updateUserProfile(updates) {
     if (!userInfo.value?.uid) return
-    const userDocRef = doc(usersCollection, userInfo.value.uid)
-    const formatDate = moment().format()
-
-    try {
-      if (updates.profilePic) {
-        const profilePicUrl = await uploadToCloudinary(updates.profilePic)
-        if (profilePicUrl) updates.profilePicUrl = profilePicUrl
-        delete updates.profilePic
-      }
-
-      updates.updatedAt = formatDate
-      await updateDoc(userDocRef, updates)
-      userInfo.value = { ...userInfo.value, ...updates }
-      localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
-    } catch (error) {
-      console.error('Error updating user profile:', error)
-    }
+    const now = new Date().toISOString()
+    await updateDoc(doc(usersCollection, userInfo.value.uid), { ...updates, updatedAt: now })
+    await fetchUserProfile()
   }
 
   return {
     userInfo,
     userLoggedIn,
+    isAuthReady,
+    initAuth,
     register,
     login,
     logout,
@@ -111,5 +90,3 @@ export const useUserStore = defineStore('user', () => {
     updateUserProfile
   }
 })
-
-export default useUserStore

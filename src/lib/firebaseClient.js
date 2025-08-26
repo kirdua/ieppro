@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
-import { getAuth } from 'firebase/auth'
+import { getAuth, setPersistence, browserSessionPersistence } from 'firebase/auth'
 import { getFirestore, collection, doc, serverTimestamp, addDoc } from 'firebase/firestore'
 
 // Firebase configuration
@@ -16,6 +16,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
+await setPersistence(auth, browserSessionPersistence)
 const analytics = getAnalytics(app)
 const db = getFirestore(app)
 

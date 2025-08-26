@@ -45,12 +45,6 @@ watch(
   }
 )
 
-const handleOldFlowScheduledServices = () => {
-  const currentChildProfile = servicesStore.currentChildProfile.value
-  const { id, gradeLevel } = currentChildProfile
-  router.push({ name: 'add-services', query: { id, grade: gradeLevel } })
-}
-
 const handleAddScheduledServices = () => {
   servicesStore.toggleAddScheduledServicesModal()
 }
