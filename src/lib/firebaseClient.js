@@ -1,8 +1,19 @@
+// src/lib/firebaseClient.js
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getAuth, setPersistence, browserSessionPersistence } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import {
+  getFirestore,
+  collection,
+  doc,
+  serverTimestamp,
+  addDoc,
+  setDoc,
+  getDoc,
+  updateDoc
+} from 'firebase/firestore'
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -13,16 +24,44 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
-export const app = initializeApp(firebaseConfig)
-export const auth = getAuth(app)
-export const db = getFirestore(app)
-export const analytics = getAnalytics(app)
+// Core services
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
+const db = getFirestore(app)
 
-// expose a function to set persistence
+// Guard analytics so build/SSR doesn’t choke
+const analytics =
+  typeof window !== 'undefined' && typeof document !== 'undefined' ? getAnalytics(app) : undefined
+
+// Optional: call this from main.js during bootstrap (no top-level await here)
 export async function initFirebasePersistence() {
   try {
     await setPersistence(auth, browserSessionPersistence)
   } catch (err) {
     console.error('setPersistence failed:', err)
   }
+}
+
+// Collections
+const usersCollection = collection(db, 'users')
+const childrenCollection = collection(db, 'children')
+const servicesCollection = collection(db, 'services')
+const goalsCollection = collection(db, 'goals')
+
+export {
+  app,
+  auth,
+  analytics,
+  db,
+  usersCollection,
+  childrenCollection,
+  servicesCollection,
+  goalsCollection,
+  doc,
+  serverTimestamp,
+  addDoc,
+  collection,
+  setDoc,
+  getDoc,
+  updateDoc
 }
