@@ -94,6 +94,18 @@ const routes = [
     }
   },
   {
+    path: '/notes',
+    name: 'notes',
+    component: () => import('@/views/notes/Notes.vue'),
+    beforeEnter(to, from, next) {
+      next()
+    },
+    meta: {
+      requiresAuth: true,
+      header: 'Notes'
+    }
+  },
+  {
     path: '/iep-upload',
     name: 'iepupload',
     component: () => import('@/components/upload/IepUpload.vue'),

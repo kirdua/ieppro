@@ -22,6 +22,12 @@ const navbarRoutes = [
     value: 'scheduled-services',
     icon: 'mdi mdi-hand-heart',
     route: 'scheduled-services'
+  },
+  {
+    title: 'Notes',
+    value: 'notes',
+    icon: 'mdi-note-multiple-outline',
+    route: 'notes'
   }
   // {
   //   title: 'Annual Progress Report',

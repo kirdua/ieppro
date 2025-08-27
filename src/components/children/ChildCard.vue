@@ -31,8 +31,8 @@ const deleteChildInfo = async () => {
   }
 }
 
-const goToAddServices = (id, grade) => {
-  router.push({ name: 'add-services', query: { id, grade } })
+const goToAddServices = () => {
+  router.push({ name: 'scheduled-services' })
 }
 </script>
 

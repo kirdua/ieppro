@@ -7,6 +7,7 @@ import useUserStore from '@/stores/user'
 import useChildrenStore from '@/stores/children'
 import useServicesStore from '@/stores/services'
 import useGoalsStore from '@/stores/goals'
+import useNotesStore from '@/stores/notes'
 
 import AddButton from './button/AddButton.vue'
 
@@ -19,6 +20,7 @@ const userStore = useUserStore()
 const childrenStore = useChildrenStore()
 const servicesStore = useServicesStore()
 const goalsStore = useGoalsStore()
+const notesStore = useNotesStore()
 
 /** Keep state reactive when pulling from Pinia stores */
 const { userInfo } = storeToRefs(userStore)
@@ -40,6 +42,11 @@ const handleAddGoals = () => {
   goalsStore.toggleAddGoalsModal()
 }
 
+const handleAddNote = () => {
+  // Future implementation for adding notes
+  notesStore.showEditor = true
+}
+
 /** Menu items */
 const items = [
   { title: 'Profile', action: goToProfile, icon: 'mdi-account' },
@@ -50,7 +57,7 @@ const items = [
 <template>
   <v-app-bar flat class="justify-end dropshadow">
     <template #prepend>
-      <h3>{{ currentTitle }}</h3>
+      <h3 class="text-primary">{{ currentTitle }}</h3>
     </template>
 
     <v-app-bar-title />
@@ -73,6 +80,12 @@ const items = [
       v-if="currentTitle === 'Goals'"
       :buttonText="'Add Goal'"
       :handleClick="handleAddGoals"
+    />
+
+    <add-button
+      v-if="currentTitle === 'Notes'"
+      :buttonText="'Add Note'"
+      :handleClick="handleAddNote"
     />
 
     <!-- User menu -->

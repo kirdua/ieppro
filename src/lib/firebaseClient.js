@@ -47,6 +47,7 @@ const usersCollection = collection(db, 'users')
 const childrenCollection = collection(db, 'children')
 const servicesCollection = collection(db, 'services')
 const goalsCollection = collection(db, 'goals')
+const notesCollection = collection(db, 'notes')
 
 export {
   app,
@@ -57,6 +58,7 @@ export {
   childrenCollection,
   servicesCollection,
   goalsCollection,
+  notesCollection,
   doc,
   serverTimestamp,
   addDoc,

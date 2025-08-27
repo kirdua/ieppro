@@ -23,7 +23,6 @@ app.use(vuetify)
 app.use(Vue3Toastify, { autoClose: 3000, position: 'top-right' })
 
 const store = useUserStore()
-
 ;(async () => {
   await initFirebasePersistence()
 
