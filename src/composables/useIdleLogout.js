@@ -2,7 +2,7 @@ import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebaseClient'
 
 let idleTimer
-const IDLE_MS = 5 * 60 * 1000 // 15 minutes
+const IDLE_MS = 5 * 60 * 1000 //5 minutes
 
 function resetIdleTimer() {
   clearTimeout(idleTimer)
