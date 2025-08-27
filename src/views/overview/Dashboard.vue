@@ -2,8 +2,6 @@
 
 <template>
   <v-container class="py-8">
-    <h1 class="text-h4 mb-4">Dashboard</h1>
-
     <v-card class="mb-6 rounded-2xl">
       <v-card-text class="text-body-1">
         Welcome to the IEPPro Dashboard — your central hub for managing a student’s Individualized

@@ -42,3 +42,10 @@ const handleDelete = (item, event) => {
     <template #bottom />
   </v-data-table>
 </template>
+
+<style scoped>
+.hoverable-row:hover {
+  cursor: pointer;
+  background-color: #f2f0ef;
+}
+</style>
