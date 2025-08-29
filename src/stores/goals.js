@@ -5,7 +5,6 @@ import { setDoc, updateDoc, getDocs, deleteDoc, query, where } from 'firebase/fi
 import moment from 'moment'
 
 const useGoalsStore = defineStore('goals', () => {
-  const formatDate = moment().format()
   const goals = ref([])
   const modalIsVisible = ref(false)
   const currentChildProfile = ref({})

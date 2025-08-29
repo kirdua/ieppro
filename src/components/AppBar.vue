@@ -43,8 +43,7 @@ const handleAddGoals = () => {
 }
 
 const handleAddNote = () => {
-  // Future implementation for adding notes
-  notesStore.showEditor = true
+  notesStore.noteModalIsVisible = true
 }
 
 /** Menu items */
@@ -93,7 +92,7 @@ const items = [
       <template #activator="{ props }">
         <v-btn icon v-bind="props" aria-label="User menu">
           <v-avatar v-if="userInfo?.profilePicUrl" size="40">
-            <img :src="userInfo.profilePicUrl" alt="Profile Picture" />
+            <v-img :src="userInfo.profilePicUrl" alt="Profile Picture" cover />
           </v-avatar>
           <v-icon v-else color="primary">mdi-dots-vertical</v-icon>
         </v-btn>
@@ -103,16 +102,11 @@ const items = [
         <v-list-item
           v-for="(item, index) in items"
           :key="index"
+          :prepend-icon="item.icon"
+          :title="item.title"
           @click="item.action"
           class="cursor-pointer"
-        >
-          <v-list-item-content class="custom-list-item">
-            <v-list-item-icon class="mr-2">
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+        />
       </v-list>
     </v-menu>
   </v-app-bar>
