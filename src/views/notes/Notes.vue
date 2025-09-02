@@ -9,51 +9,75 @@ import NoteCard from './components/NoteCard.vue'
 import AddNoteModal from './components/AddNoteModal.vue'
 
 const userStore = useUserStore()
-const childrenStore = useChildrenStore()
+const childStore = useChildrenStore()
 const notesStore = useNotesStore()
 
 const { uid } = userStore.userInfo
 
-const isLoading = ref(false)
+const currentGrade = ref('')
 const selectedChildId = ref(null)
-const currentGrade = ref('') // ✅ add grade level state
 const childOptions = ref([])
+const isLoading = ref(false)
 
-// Helper used by NoteCard
-const childNameById = (id) => {
-  const c = childrenStore.children.find((x) => x.id === id)
-  return c?.name || [c?.firstName, c?.lastName].filter(Boolean).join(' ') || 'Linked'
-}
-
-// Init children + default selection (first child)
 onMounted(async () => {
   isLoading.value = true
-  await childrenStore.getChildrenProfiles(uid)
+  await childStore.getChildrenProfiles(uid)
 
-  childOptions.value = (childrenStore.children || []).map((child) => ({
-    name: child.name || [child.firstName, child.lastName].filter(Boolean).join(' '),
-    id: child.id,
-    gradeLevel: child.gradeLevel || ''
-  }))
-
-  if (childOptions.value.length) {
+  if (childStore.children.length > 0) {
+    childOptions.value = childStore.children.map((child) => ({
+      name: child.name || [child.firstName, child.lastName].filter(Boolean).join(' '),
+      id: child.id,
+      gradeLevel: child.gradeLevel || ''
+    }))
     selectedChildId.value = childOptions.value[0].id
     currentGrade.value = childOptions.value[0].gradeLevel || ''
   }
 
+  updateCurrentChildProfile()
+  await getNotes()
   isLoading.value = false
 })
 
-// When the selected child changes, sync grade level to that child’s grade
-watch(selectedChildId, (id) => {
-  const c = childOptions.value.find((x) => x.id === id)
-  currentGrade.value = c?.gradeLevel || ''
+const updateCurrentChildProfile = () => {
+  notesStore.currentChildProfile = {
+    id: selectedChildId.value,
+    gradeLevel: currentGrade.value
+  }
+}
+
+watch([selectedChildId, currentGrade], () => {
+  updateCurrentChildProfile()
 })
 
-// Stubs (fill later)
-const getNotes = async () => {}
-const handleDelete = async () => {}
-const handleTogglePin = async () => {}
+watch(
+  () => [selectedChildId.value, currentGrade.value],
+  async () => {
+    await getNotes()
+  }
+)
+
+const getNotes = async () => {
+  isLoading.value = true
+  await notesStore.getNotesByGradeLevel({
+    id: selectedChildId.value,
+    gradeLevel: currentGrade.value
+  })
+  isLoading.value = false
+}
+
+const childNameById = (id) => {
+  const c = childStore.children.find((x) => x.id === id)
+  return c?.name || [c?.firstName, c?.lastName].filter(Boolean).join(' ') || 'Linked'
+}
+
+const handleDelete = async (note) => {
+  await notesStore.deleteNote(note)
+  await getNotes()
+}
+
+const handleEdit = (note) => {
+  notesStore.openEditNote(note)
+}
 </script>
 
 <template>
@@ -68,7 +92,7 @@ const handleTogglePin = async () => {}
         variant="outlined"
         class="w-35 mr-5"
         :disabled="isLoading"
-      ></v-select>
+      />
       <v-select
         label="Grade Level"
         v-model="currentGrade"
@@ -76,7 +100,7 @@ const handleTogglePin = async () => {}
         variant="outlined"
         class="w-35"
         :disabled="isLoading"
-      ></v-select>
+      />
     </div>
 
     <div v-if="isLoading" class="text-center mt-4">
@@ -87,7 +111,7 @@ const handleTogglePin = async () => {}
     <div v-else-if="notesStore.notes.length === 0">
       <v-empty-state headline="No notes yet" text="Create your first note.">
         <template #actions>
-          <v-btn variant="outlined" color="primary" @click="notesStore.noteModalIsVisible = true">
+          <v-btn variant="outlined" color="primary" @click="notesStore.openNewNote()">
             Add Note
           </v-btn>
         </template>
@@ -98,12 +122,12 @@ const handleTogglePin = async () => {}
       <NoteCard
         :notes="notesStore.notes"
         :child-name-by-id="childNameById"
+        @edit-note="handleEdit"
         @delete-note="handleDelete"
-        @toggle-pin="handleTogglePin"
       />
     </div>
 
-    <!-- Matches Goals pattern: modal binds internally to store visibility and emits a single event -->
-    <AddNoteModal :selectedChildId="selectedChildId" @note-added="getNotes" />
+    <!-- Modal reads from the store (no props needed) -->
+    <AddNoteModal @note-added="getNotes" />
   </div>
 </template>

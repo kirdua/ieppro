@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@date-io/dayjs": "^3.0.0",
+    "@popperjs/core": "^2.11.8",
     "@stripe/stripe-js": "^5.6.0",
     "@vuepic/vue-datepicker": "^8.6.0",
     "axios": "^1.7.9",
