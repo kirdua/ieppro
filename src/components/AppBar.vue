@@ -112,10 +112,7 @@ const items = [
 <template>
   <v-app-bar flat class="justify-end dropshadow">
     <template #prepend>
-      <h3
-        class="text-primary"
-        v-if="currentTitle !== 'Goals' && currentTitle !== 'Scheduled Services'"
-      >
+      <h3 class="text-primary">
         {{ currentTitle }}
       </h3>
     </template>
