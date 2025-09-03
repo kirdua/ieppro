@@ -1,6 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { gradeLevels } from '@/utils/child-options'
+import { computed, onMounted, watch, ref } from 'vue'
 import useUserStore from '@/stores/user'
 import useChildrenStore from '@/stores/children'
 import useGoalsStore from '@/stores/goals'
@@ -17,94 +16,93 @@ const goalsStore = useGoalsStore()
 
 const { uid } = userStore.userInfo
 
-const currentGrade = ref('')
-const selectedChildId = ref(null)
-const childOptions = ref([])
-const isLoading = ref(false)
-
-// New sidebar state
+// Sidebar + delete dialog state
 const showSidebar = ref(false)
 const selectedGoal = ref(null)
-
 const deleteDialogVisible = ref(false)
 const goalToDelete = ref(null)
 
+const isLoading = ref(false)
+
+// Read current selection from the AppBar via children store
+const childId = computed(() => childStore.selectedChildProfile?.id || null)
+const currentGrade = computed(() => childStore.selectedChildProfile?.gradeLevel || '')
+
+// Open sidebar on row click
 const handleGoalClick = (goal) => {
   selectedGoal.value = goal
   showSidebar.value = true
 }
 
+// Ensure we have children + a selection when landing directly on this page
 onMounted(async () => {
   isLoading.value = true
-  await childStore.getChildrenProfiles(uid)
-  if (childStore.children.length > 0) {
-    childOptions.value = childStore.children.map((child) => ({
-      name: child.name,
-      id: child.id,
-      gradeLevel: child.gradeLevel
-    }))
-    selectedChildId.value = childOptions.value[0].id
-    currentGrade.value = childOptions.value[0].gradeLevel
+
+  if (!childStore.children?.length && uid) {
+    await childStore.getChildrenProfiles(uid)
   }
 
-  updateCurrentChildProfile()
+  // If nothing selected yet, default to first child (reuses your existing helper)
+  if (!childStore.selectedChildProfile && childStore.children.length) {
+    childStore.editChildProfile(childStore.children[0])
+  }
+
   isLoading.value = false
 })
 
+// Keep goalsStore aware of the current selection
 const updateCurrentChildProfile = () => {
   goalsStore.currentChildProfile = {
-    id: selectedChildId.value,
+    id: childId.value,
     gradeLevel: currentGrade.value
   }
 }
 
-watch([selectedChildId, currentGrade], () => {
-  updateCurrentChildProfile()
-})
+// Fetch goals whenever selection changes (and on first run)
+const getGoals = async () => {
+  if (!childId.value) return
+  isLoading.value = true
+  try {
+    await goalsStore.getGoalsByGradeLevel({
+      id: childId.value,
+      gradeLevel: currentGrade.value
+    })
+  } catch (error) {
+    console.error(error?.response?.data?.message || error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 watch(
-  () => [selectedChildId.value, currentGrade.value],
+  [childId, currentGrade],
   () => {
+    updateCurrentChildProfile()
     getGoals()
-  }
+  },
+  { immediate: true }
 )
 
-const getGoals = async () => {
-  isLoading.value = true
-  const params = {
-    id: selectedChildId.value,
-    gradeLevel: currentGrade.value
-  }
-
-  try {
-    await goalsStore.getGoalsByGradeLevel(params)
-  } catch (error) {
-    console.error(error?.response?.data?.message)
-  }
-  isLoading.value = false
-}
-
+// Delete flow
 const showDeleteDialog = (goal) => {
   goalToDelete.value = goal
   deleteDialogVisible.value = true
 }
-
 const closeDeleteDialog = () => {
   deleteDialogVisible.value = false
   goalToDelete.value = null
 }
-
 const deleteGoal = async () => {
   try {
-    await goalsStore.deleteGoal(goalToDelete.value, selectedChildId.value, currentGrade.value)
-    deleteDialogVisible.value = false
-    goalToDelete.value = null
+    await goalsStore.deleteGoal(goalToDelete.value, childId.value, currentGrade.value)
+    closeDeleteDialog()
     await getGoals()
   } catch (err) {
     console.error('Failed to delete goal:', err)
   }
 }
 
+// Save from sidebar
 const handleGoalSave = async (updatedGoal) => {
   await goalsStore.updateGoal(updatedGoal)
   await getGoals()
@@ -113,26 +111,7 @@ const handleGoalSave = async (updatedGoal) => {
 
 <template>
   <div class="pa-4">
-    <div class="d-flex w-100 flex-inline">
-      <v-select
-        label="Child"
-        v-model="selectedChildId"
-        :items="childOptions"
-        item-value="id"
-        item-title="name"
-        variant="outlined"
-        class="w-35 mr-5"
-        :disabled="isLoading"
-      ></v-select>
-      <v-select
-        label="Grade Level"
-        v-model="currentGrade"
-        :items="gradeLevels"
-        variant="outlined"
-        class="w-35"
-        :disabled="isLoading"
-      ></v-select>
-    </div>
+    <!-- Selectors removed: we rely on AppBar's global selection -->
 
     <div v-if="isLoading" class="text-center mt-4">
       <v-progress-circular indeterminate color="primary" />
@@ -142,6 +121,7 @@ const handleGoalSave = async (updatedGoal) => {
     <div v-else-if="goalsStore.goals.length === 0">
       <NoGoals />
     </div>
+
     <div v-else>
       <GoalsTable
         :isLoading="isLoading"
@@ -152,11 +132,10 @@ const handleGoalSave = async (updatedGoal) => {
     </div>
 
     <GoalsSidebar v-model:show="showSidebar" :goal="selectedGoal" @save="handleGoalSave" />
-    <AddGoalModal
-      :selectedChildId="selectedChildId"
-      :currentGrade="currentGrade"
-      @goal-added="getGoals"
-    />
+
+    <!-- Still pass the current selection to AddGoalModal -->
+    <AddGoalModal :selectedChildId="childId" :currentGrade="currentGrade" @goal-added="getGoals" />
+
     <GoalDeleteDialog
       :goal="goalToDelete"
       :showDeleteDialog="deleteDialogVisible"

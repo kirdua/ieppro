@@ -1,6 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { gradeLevels } from '@/utils/child-options'
+import { onMounted, ref, watch, computed } from 'vue'
 import useUserStore from '@/stores/user'
 import useChildrenStore from '@/stores/children'
 import useNotesStore from '@/stores/notes'
@@ -14,57 +13,62 @@ const notesStore = useNotesStore()
 
 const { uid } = userStore.userInfo
 
-const currentGrade = ref('')
-const selectedChildId = ref(null)
-const childOptions = ref([])
 const isLoading = ref(false)
 
+/** Read selection from AppBar (children store) */
+const childId = computed(() => childStore.selectedChildProfile?.id || null)
+const currentGrade = computed(() => childStore.selectedChildProfile?.gradeLevel || '')
+
+/** Ensure children + a selection exist when landing directly here */
 onMounted(async () => {
   isLoading.value = true
-  await childStore.getChildrenProfiles(uid)
 
-  if (childStore.children.length > 0) {
-    childOptions.value = childStore.children.map((child) => ({
-      name: child.name || [child.firstName, child.lastName].filter(Boolean).join(' '),
-      id: child.id,
-      gradeLevel: child.gradeLevel || ''
-    }))
-    selectedChildId.value = childOptions.value[0].id
-    currentGrade.value = childOptions.value[0].gradeLevel || ''
+  if (!childStore.children?.length && uid) {
+    await childStore.getChildrenProfiles(uid)
   }
 
-  updateCurrentChildProfile()
+  // If nothing selected yet, default to first child using your existing helper
+  if (!childStore.selectedChildProfile && childStore.children.length) {
+    childStore.editChildProfile(childStore.children[0])
+  }
+
   await getNotes()
   isLoading.value = false
 })
 
-const updateCurrentChildProfile = () => {
+/** Keep notesStore aware of the current selection */
+const syncNotesCurrentChild = () => {
   notesStore.currentChildProfile = {
-    id: selectedChildId.value,
+    id: childId.value,
     gradeLevel: currentGrade.value
   }
 }
 
-watch([selectedChildId, currentGrade], () => {
-  updateCurrentChildProfile()
-})
-
-watch(
-  () => [selectedChildId.value, currentGrade.value],
-  async () => {
-    await getNotes()
+/** Fetch notes for current selection */
+const getNotes = async () => {
+  if (!childId.value) return
+  isLoading.value = true
+  try {
+    await notesStore.getNotesByGradeLevel({
+      id: childId.value,
+      gradeLevel: currentGrade.value
+    })
+  } finally {
+    isLoading.value = false
   }
+}
+
+/** React to global selection changes */
+watch(
+  [childId, currentGrade],
+  () => {
+    syncNotesCurrentChild()
+    getNotes()
+  },
+  { immediate: true }
 )
 
-const getNotes = async () => {
-  isLoading.value = true
-  await notesStore.getNotesByGradeLevel({
-    id: selectedChildId.value,
-    gradeLevel: currentGrade.value
-  })
-  isLoading.value = false
-}
-
+/** Helpers & actions */
 const childNameById = (id) => {
   const c = childStore.children.find((x) => x.id === id)
   return c?.name || [c?.firstName, c?.lastName].filter(Boolean).join(' ') || 'Linked'
@@ -82,26 +86,7 @@ const handleEdit = (note) => {
 
 <template>
   <div class="pa-4">
-    <div class="d-flex w-100 flex-inline">
-      <v-select
-        label="Child"
-        v-model="selectedChildId"
-        :items="childOptions"
-        item-value="id"
-        item-title="name"
-        variant="outlined"
-        class="w-35 mr-5"
-        :disabled="isLoading"
-      />
-      <v-select
-        label="Grade Level"
-        v-model="currentGrade"
-        :items="gradeLevels"
-        variant="outlined"
-        class="w-35"
-        :disabled="isLoading"
-      />
-    </div>
+    <!-- Selectors removed: rely on AppBar's global Child & Grade -->
 
     <div v-if="isLoading" class="text-center mt-4">
       <v-progress-circular indeterminate color="primary" />
