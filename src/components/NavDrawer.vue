@@ -25,7 +25,7 @@ const setActiveItem = (route) => {
 <template>
   <v-card>
     <v-navigation-drawer v-model="drawer" :rail="rail" permanent color="#385F73">
-      <v-list-item :title="userName" nav>
+      <v-list-item nav>
         <template v-slot:append>
           <v-btn icon="mdi-chevron-left" variant="text" @click.stop="rail = !rail"></v-btn>
         </template>
