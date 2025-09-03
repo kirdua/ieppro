@@ -26,7 +26,7 @@ const navbarRoutes = [
   {
     title: 'Notes',
     value: 'notes',
-    icon: 'mdi-note-multiple-outline',
+    icon: 'mdi-note-text-outline',
     route: 'notes'
   }
   // {

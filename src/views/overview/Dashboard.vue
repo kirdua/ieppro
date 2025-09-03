@@ -6,7 +6,7 @@
       <v-card-text class="text-body-1">
         Welcome to the IEPPro Dashboard — your central hub for managing a student’s Individualized
         Education Plan (IEP). From here, you can view the child’s profile, track progress toward
-        goals, and review or update scheduled services.
+        goals, review or update scheduled services, and capture important meeting notes.
       </v-card-text>
       <v-card-actions class="px-4 pb-4">
         <v-spacer />
@@ -22,11 +22,15 @@
           <v-icon start icon="mdi-hand-heart" />
           Services
         </v-btn>
+        <v-btn variant="text" color="primary" :to="{ path: '/notes' }">
+          <v-icon start icon="mdi-note-text-outline" />
+          Notes
+        </v-btn>
       </v-card-actions>
     </v-card>
 
     <v-row dense>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-card class="h-100 rounded-2xl">
           <v-card-title class="d-flex align-center gap-2">
             <v-icon icon="mdi-account-school-outline" />
@@ -41,7 +45,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-card class="h-100 rounded-2xl">
           <v-card-title class="d-flex align-center gap-2">
             <v-icon icon="mdi-bullseye-arrow" />
@@ -56,7 +60,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="3">
         <v-card class="h-100 rounded-2xl">
           <v-card-title class="d-flex align-center gap-2">
             <v-icon icon="mdi-hand-heart" />
@@ -67,6 +71,21 @@
           </v-card-text>
           <v-card-actions>
             <v-btn variant="text" color="primary" :to="{ path: '/scheduled-services' }">Open</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" md="3">
+        <v-card class="h-100 rounded-2xl">
+          <v-card-title class="d-flex align-center gap-2">
+            <v-icon icon="mdi-note-text-outline" />
+            Notes
+          </v-card-title>
+          <v-card-text>
+            Capture and review meeting notes, decisions, and updates linked to student progress.
+          </v-card-text>
+          <v-card-actions>
+            <v-btn variant="text" color="primary" :to="{ path: '/notes' }">Open</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
