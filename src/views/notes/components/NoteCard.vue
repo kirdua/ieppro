@@ -23,7 +23,7 @@ const preview = (text) => (text && text.trim()) || '—'
 <template>
   <v-row dense>
     <v-col v-for="note in sortedNotes" :key="note.id" cols="12" md="6" lg="4">
-      <v-card class="rounded-xl hover-elevate" elevation="1">
+      <v-card class="rounded-xl hover-elevate" elevation="6">
         <!-- Header -->
         <v-sheet
           color="primary"
