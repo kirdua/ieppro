@@ -34,63 +34,51 @@ const featureCards = [
 ]
 </script>
 
-<!-- keep your <script setup> as-is -->
-
 <template>
-  <v-container class="py-10">
-    <!-- Header / Intro -->
-    <v-sheet class="header-hero rounded-2xl mb-8" border="thin" elevation="6">
-      <div class="hero-inner">
-        <div class="hero-text">
-          <h2 class="hero-title text-primary">IEPPro Dashboard</h2>
-          <p class="hero-subtitle text-high-emphasis text-primary">
-            Your central hub for managing a student’s IEP—view profiles, track goals, monitor
-            services, and capture meeting notes.
-          </p>
-        </div>
-
-        <div class="hero-actions d-flex flex-wrap gap-3 justify-center align-end">
-          <v-btn
-            v-for="link in quickLinks"
-            :key="link.label"
-            :to="link.to"
-            color="primary"
-            variant="flat"
-            class="mx-1"
-            density="comfortable"
-          >
-            <v-icon start :icon="link.icon" />
-            {{ link.label }}
-          </v-btn>
-        </div>
-      </div>
-    </v-sheet>
+  <v-container class="py-8">
+    <!-- Intro Card -->
+    <v-card class="mb-6 rounded-2xl intro-card" elevation="6">
+      <v-card-text class="text-body-1 text-high-emphasis">
+        Welcome to the IEPPro Dashboard — your central hub for managing a student’s Individualized
+        Education Plan (IEP). From here, you can view the child’s profile, track progress toward
+        goals, review or update scheduled services, and capture important meeting notes.
+      </v-card-text>
+      <v-card-actions class="px-4 pb-4">
+        <v-spacer />
+        <v-btn
+          v-for="link in quickLinks"
+          :key="link.label"
+          :to="link.to"
+          color="primary"
+          variant="flat"
+          density="comfortable"
+          elevation="6"
+          class="rounded-l p-4 text-none font-weight-medium"
+        >
+          <v-icon start :icon="link.icon" />
+          {{ link.label }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
     <!-- Feature Grid -->
     <v-row dense>
-      <v-col v-for="card in featureCards" :key="card.title" cols="12" sm="6" md="3">
-        <v-card class="h-100 rounded-2xl card-pro text-primary" elevation="6">
-          <!-- stronger shadow -->
-          <v-card-item class="pb-0">
-            <template #prepend>
-              <v-avatar size="36" class="avatar-solid text-primary">
-                <!-- solid, not translucent -->
-                <v-icon :icon="card.icon" />
-              </v-avatar>
-            </template>
-            <v-card-title class="text-h6 text-high-emphasis text-primary">{{
-              card.title
-            }}</v-card-title>
-          </v-card-item>
-
-          <v-divider class="pro-divider my-2" />
-
-          <v-card-text class="text-body-2 text-high-emphasis text-primary">
+      <v-col v-for="card in featureCards" :key="card.title" cols="12" md="3">
+        <v-card class="h-100 rounded-2xl feature-card" elevation="6">
+          <v-card-title class="d-flex align-center gap-2 text-primary font-weight-semibold">
+            <v-icon :icon="card.icon" color="primary" />
+            {{ card.title }}
+          </v-card-title>
+          <v-card-text class="text-body-2 text-high-emphasis">
             {{ card.desc }}
           </v-card-text>
-
-          <v-card-actions class="justify-end pt-0">
-            <v-btn variant="text" color="primary" :to="card.to" density="comfortable" class="bold">
+          <v-card-actions class="d-flex justify-end px-4 pb-4">
+            <v-btn
+              variant="text"
+              color="primary"
+              :to="card.to"
+              class="d-flex justify-end font-weight-medium"
+            >
               Open
               <v-icon end icon="mdi-arrow-right" />
             </v-btn>
@@ -102,58 +90,23 @@ const featureCards = [
 </template>
 
 <style scoped>
-/* Remove the gray wash; rely on global app background (see section 2). */
-.header-hero {
-  background: #fff; /* solid surface, no tint */
-  drop-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
-}
-
-/* Tight, readable header */
-.hero-inner {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1.25rem;
-  padding: 24px;
-}
-.hero-title {
-  margin: 0;
-  font-weight: 700;
-}
-.hero-subtitle {
-  margin: 6px 0 0 0;
-}
-
-/* Cards: solid white + stronger shadow */
-.card-pro {
-  background: #fff; /* solid white in light theme */
+.intro-card {
+  background: #fff;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
-  transition:
-    box-shadow 160ms ease,
-    transform 160ms ease;
 }
-.card-pro:hover {
+
+.feature-card {
+  background: #fff;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+.feature-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
-/* Solid avatar chip to increase icon contrast */
-.avatar-solid {
-  background: color-mix(in oklab, var(--v-theme-primary) 18%, white);
-  color: var(--v-theme-primary);
-}
-
-/* Divider with clearer contrast */
-.pro-divider {
-  opacity: 0.9;
-}
-
-@media (max-width: 960px) {
-  .hero-inner {
-    grid-template-columns: 1fr;
-  }
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-  }
+.v-btn {
+  text-transform: none; /* keep labels clean */
 }
 </style>
