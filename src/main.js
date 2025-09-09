@@ -8,7 +8,6 @@ import { loadFonts } from './plugins/webfontloader'
 import { initFirebasePersistence } from '@/lib/firebaseClient' // <— import the init fn
 
 import Vue3Toastify from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css'
 
 import useUserStore from '@/stores/user'
 

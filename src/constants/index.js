@@ -9,14 +9,14 @@ export const servicesHeaders = [
 
 export const goalHeaders = [
   {
+    title: 'Goal Subject',
+    align: 'left',
+    key: 'goalSubject'
+  },
+  {
     title: 'Goal Focus',
     align: 'left',
     key: 'goalFocus'
-  },
-  {
-    title: 'Goal Type',
-    align: 'left',
-    key: 'goalType'
   },
   {
     title: 'Current Performance',

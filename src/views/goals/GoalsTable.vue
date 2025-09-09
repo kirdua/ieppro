@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { goalHeaders, formatTableData } from '@/constants'
 
 const props = defineProps({
@@ -13,16 +14,16 @@ const handleDelete = (item, event) => {
   emit('delete-goal', item)
 }
 
-// Optional: map goalType to a tone (tweak as you like)
-const typeColor = (type) => {
-  if (!type) return 'default'
-  const t = String(type).toLowerCase()
-  if (t.includes('reading')) return 'primary'
-  if (t.includes('math')) return 'secondary'
-  if (t.includes('behavior')) return 'warning'
-  if (t.includes('speech')) return 'info'
-  return 'default'
-}
+/** Client-side pagination */
+const page = ref(1)
+const itemsPerPage = ref(10)
+const itemsPerPageOptions = [
+  { value: 5, title: '5' },
+  { value: 10, title: '10' },
+  { value: 25, title: '25' },
+  { value: 50, title: '50' },
+  { value: -1, title: 'All' } // -1 = show all rows
+]
 </script>
 
 <template>
@@ -46,12 +47,17 @@ const typeColor = (type) => {
       fixed-header
       height="520"
       item-key="id"
+      v-model:page="page"
+      v-model:items-per-page="itemsPerPage"
+      :items-per-page-options="itemsPerPageOptions"
+      items-per-page-text="Rows per page:"
     >
       <!-- Loading skeleton -->
       <template #loading>
         <tbody>
           <tr v-for="i in 8" :key="i">
-            <td :colspan="goalHeaders.length" class="pa-0">
+            <!-- +1 to include the Actions column -->
+            <td :colspan="goalHeaders.length + 1" class="pa-0">
               <v-skeleton-loader type="table-row" />
             </td>
           </tr>
@@ -79,17 +85,8 @@ const typeColor = (type) => {
       <!-- Custom row -->
       <template #item="{ item }">
         <tr class="hoverable-row" @click="handleRowClick(item)">
+          <td class="td-clip">{{ item.goalSubject }}</td>
           <td class="td-clip">{{ item.goalFocus }}</td>
-          <td>
-            <v-chip
-              :color="typeColor(item.goalType)"
-              :variant="typeColor(item.goalType) === 'default' ? 'tonal' : 'flat'"
-              size="small"
-              class="font-weight-medium"
-            >
-              {{ item.goalType || '—' }}
-            </v-chip>
-          </td>
           <td class="td-clip">{{ item.currentPerformance }}</td>
           <td>{{ item.duration }}</td>
           <td>{{ formatTableData(item.benchmarks, 'number') }}</td>
@@ -115,8 +112,8 @@ const typeColor = (type) => {
         </tr>
       </template>
 
-      <!-- Remove default footer -->
-      <template #bottom />
+      <!-- Let Vuetify render the default footer with pagination -->
+      <!-- (Remove your previous #bottom override) -->
     </v-data-table>
   </v-card>
 </template>

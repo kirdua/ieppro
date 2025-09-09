@@ -106,6 +106,18 @@ const routes = [
     }
   },
   {
+    path: '/class-schedule',
+    name: 'class-schedule',
+    component: () => import('@/views/schedule/ClassSchedule.vue'),
+    beforeEnter(to, from, next) {
+      next()
+    },
+    meta: {
+      requiresAuth: true,
+      header: 'Class Schedule'
+    }
+  },
+  {
     path: '/iep-upload',
     name: 'iepupload',
     component: () => import('@/components/upload/IepUpload.vue'),

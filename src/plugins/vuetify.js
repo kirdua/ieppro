@@ -1,67 +1,52 @@
-// Styles
+// src/plugins/vuetify.js
 import '@mdi/font/css/materialdesignicons.css'
-import colors from 'vuetify/util/colors'
 import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import { VCalendar } from 'vuetify/labs/VCalendar' // 👈 labs import
 
 const iepproTheme = {
   dark: false,
   colors: {
-    primary: '#385F73', // Teal (Main Theme)
-    secondary: '#66A182', // Soft Green
-    accent: '#FF8C42', // Warm Orange
+    primary: '#385F73',
+    secondary: '#66A182',
+    accent: '#FF8C42',
     background: '#D4D4D4',
     surface: '#FFFFFF',
     text: '#333333',
-
-    // Status Colors
-    scheduled: '#007BFF', // Blue
-    confirmed: '#28A745', // Green
-    rescheduled: '#FFA500', // Orange
-    canceled: '#DC3545', // Red
-    completed: '#6F42C1', // Purple
-
-    pending: '#FFA500', // Orange
-    paid: '#28A745', // Green
-    failed: '#DC3545', // Red
-    refunded: '#007BFF', // Blue
-
-    healthy: '#28A745', // Green
-    underTreatment: '#FFA500', // Orange
-    critical: '#DC3545', // Red
-    recovering: '#007BFF', // Blue
-    deceased: '#212529', // Black
-
-    newRecord: '#007BFF', // Blue
-    reviewed: '#28A745', // Green
-    requiresAction: '#FFA500', // Orange
-    archived: '#F8F9FA', // Light Gray
-
-    activePrescription: '#28A745', // Green
-    completedPrescription: '#007BFF', // Blue
-    expiredPrescription: '#FFA500', // Orange
-    stoppedPrescription: '#DC3545', // Red
-
-    available: '#28A745', // Green
-    busy: '#FFA500', // Orange
-    offline: '#6C757D', // Gray
-    onLeave: '#DC3545' // Red
+    scheduled: '#007BFF',
+    confirmed: '#28A745',
+    rescheduled: '#FFA500',
+    canceled: '#DC3545',
+    completed: '#6F42C1',
+    pending: '#FFA500',
+    paid: '#28A745',
+    failed: '#DC3545',
+    refunded: '#007BFF',
+    healthy: '#28A745',
+    underTreatment: '#FFA500',
+    critical: '#DC3545',
+    recovering: '#007BFF',
+    deceased: '#212529',
+    newRecord: '#007BFF',
+    reviewed: '#28A745',
+    requiresAction: '#FFA500',
+    archived: '#F8F9FA',
+    activePrescription: '#28A745',
+    completedPrescription: '#007BFF',
+    expiredPrescription: '#FFA500',
+    stoppedPrescription: '#DC3545',
+    available: '#28A745',
+    busy: '#FFA500',
+    offline: '#6C757D',
+    onLeave: '#DC3545'
   }
 }
 
-import { createVuetify } from 'vuetify'
-
 export default createVuetify({
+  components: { VCalendar },
+
   theme: {
     defaultTheme: 'iepproTheme',
-    themes: {
-      iepproTheme
-    },
-    options: {
-      customProperties: true
-    },
-    typography: {
-      fontFamily: 'Poppins, Roboto, sans-serif'
-    }
+    themes: { iepproTheme }
   }
 })
-// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides

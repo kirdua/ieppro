@@ -28,6 +28,12 @@ const navbarRoutes = [
     value: 'notes',
     icon: 'mdi-note-text-outline',
     route: 'notes'
+  },
+  {
+    title: 'Class Schedule',
+    value: 'class-schedule',
+    icon: 'mdi-calendar-clock',
+    route: 'class-schedule'
   }
   // {
   //   title: 'Annual Progress Report',
