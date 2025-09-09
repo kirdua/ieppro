@@ -47,6 +47,11 @@ const resetForm = () => {
   saveStatus.value = null
 }
 
+const closeModal = () => {
+  servicesStore.toggleAddScheduledServicesModal()
+  resetForm()
+}
+
 const submitScheduledServices = async () => {
   isSaving.value = true
   saveStatus.value = null
@@ -95,19 +100,19 @@ const submitScheduledServices = async () => {
 </script>
 
 <template>
-  <v-dialog v-model="servicesStore.addServiceModalVisible" max-width="900px">
-    <v-card style="max-height: 100vh">
+  <v-dialog v-model="servicesStore.addServiceModalVisible" max-width="900px" scrollable>
+    <v-card class="rounded-xl" elevation="2" style="max-height: 100vh">
       <template #title>
-        <div class="d-flex justify-space-between align-center">
-          <span class="text-primary">Add a Service</span>
+        <div class="d-flex justify-space-between align-center px-2 py-1">
+          <span class="text-primary text-h6 font-weight-bold">Add a Service</span>
           <v-tooltip text="Close Dialog" location="top">
             <template #activator="{ props }">
               <v-icon
                 v-bind="props"
-                size="18"
-                color="grey"
-                class="cursor-pointer"
-                @click="servicesStore.toggleAddScheduledServicesModal"
+                size="20"
+                color="grey-darken-1"
+                class="cursor-pointer close-icon"
+                @click="closeModal"
               >
                 mdi-close
               </v-icon>
@@ -116,35 +121,86 @@ const submitScheduledServices = async () => {
         </div>
       </template>
 
-      <v-stepper v-model="step" :items="items" show-actions>
+      <v-stepper v-model="step" :items="items" show-actions color="primary" class="px-2 pb-2">
         <!-- Step 1: Form -->
         <template #item.1>
-          <v-card-text>
+          <v-card-text class="pt-4">
             <v-form ref="formRef" validate-on="input">
               <v-row>
                 <v-col cols="3">
-                  <v-select v-model="selectedSemester" :items="semesterOptions" label="Semester" />
+                  <v-select
+                    v-model="selectedSemester"
+                    :items="semesterOptions"
+                    label="Semester"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    prepend-inner-icon="mdi-timetable"
+                    color="primary"
+                  />
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model="year" label="Year" placeholder="2023-2024" />
+                  <v-text-field
+                    v-model="year"
+                    label="Year"
+                    placeholder="2023-2024"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    clearable
+                    prepend-inner-icon="mdi-calendar-range"
+                    color="primary"
+                  />
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model="course" label="Course" placeholder="Math, Reading, etc." />
+                  <v-text-field
+                    v-model="course"
+                    label="Course"
+                    placeholder="Math, Reading, etc."
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    clearable
+                    prepend-inner-icon="mdi-book-open-variant"
+                    color="primary"
+                  />
                 </v-col>
                 <v-col cols="3">
-                  <v-select v-model="location" :items="locationOptions" label="Location" />
+                  <v-select
+                    v-model="location"
+                    :items="locationOptions"
+                    label="Location"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    prepend-inner-icon="mdi-map-marker-outline"
+                    color="primary"
+                  />
                 </v-col>
               </v-row>
 
-              <v-row>
-                <v-col cols="3">
-                  <v-checkbox v-model="genEdModified" label="Gen Ed Modified" color="primary" />
+              <v-row class="mt-1">
+                <v-col cols="3" class="d-flex align-center">
+                  <v-checkbox
+                    v-model="genEdModified"
+                    label="Gen Ed Modified"
+                    color="primary"
+                    hide-details
+                  />
                 </v-col>
                 <v-col cols="3">
                   <v-text-field
                     v-model="genEdTime"
                     label="General Education Time"
                     placeholder="20"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    clearable
+                    type="number"
+                    min="0"
+                    prepend-inner-icon="mdi-timer-outline"
+                    color="primary"
                   />
                 </v-col>
                 <v-col cols="3">
@@ -152,6 +208,14 @@ const submitScheduledServices = async () => {
                     v-model="specialEdTime"
                     label="Special Education Time"
                     placeholder="20"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    clearable
+                    type="number"
+                    min="0"
+                    prepend-inner-icon="mdi-timer-sand"
+                    color="primary"
                   />
                 </v-col>
                 <v-col cols="3">
@@ -159,16 +223,41 @@ const submitScheduledServices = async () => {
                     v-model="progressGradedBy"
                     label="Graded by"
                     :items="progressGradedByOptions"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    prepend-inner-icon="mdi-account-check-outline"
+                    color="primary"
                   />
                 </v-col>
               </v-row>
 
-              <v-row>
+              <v-row class="mt-1">
                 <v-col cols="6">
-                  <v-text-field v-model="startDate" label="Start Date" placeholder="01/01/2025" />
+                  <v-text-field
+                    v-model="startDate"
+                    label="Start Date"
+                    placeholder="01/01/2025"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    clearable
+                    prepend-inner-icon="mdi-calendar-start"
+                    color="primary"
+                  />
                 </v-col>
                 <v-col cols="6">
-                  <v-text-field v-model="endDate" label="End Date" placeholder="01/01/2025" />
+                  <v-text-field
+                    v-model="endDate"
+                    label="End Date"
+                    placeholder="01/01/2025"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    clearable
+                    prepend-inner-icon="mdi-calendar-end"
+                    color="primary"
+                  />
                 </v-col>
               </v-row>
             </v-form>
@@ -177,42 +266,74 @@ const submitScheduledServices = async () => {
 
         <!-- Step 2: Review -->
         <template #item.2>
-          <v-card-text>
-            <h5 class="mb-4">Review Your Service Information</h5>
-            <v-row>
-              <v-col cols="6">
-                <strong>Semester:</strong> {{ selectedSemester }}<br />
-                <strong>Course:</strong> {{ course }}<br />
-                <strong>Location:</strong> {{ location }}<br />
-                <strong>Start Date:</strong> {{ startDate }}<br />
-              </v-col>
-              <v-col cols="6">
-                <strong>Gen Ed Modified:</strong> {{ genEdModified ? 'Yes' : 'No' }}<br />
-                <strong>Gen Ed Time:</strong> {{ genEdTime }} minutes<br />
-                <strong>SpEd Time:</strong> {{ specialEdTime }} minutes<br />
-                <strong>Graded By:</strong> {{ progressGradedBy }}<br />
-                <strong>End Date:</strong> {{ endDate }}
-              </v-col>
-            </v-row>
+          <v-card-text class="pt-4">
+            <v-sheet rounded="lg" elevation="6" class="pa-4 bg-grey-lighten-5">
+              <v-row>
+                <v-col cols="6">
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">Semester:</span>
+                    <div>{{ selectedSemester || '—' }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">Course:</span>
+                    <div>{{ course || '—' }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">Location:</span>
+                    <div>{{ location || '—' }}</div>
+                  </div>
+                  <div>
+                    <span class="text-medium-emphasis font-weight-medium">Start Date:</span>
+                    <div>{{ startDate || '—' }}</div>
+                  </div>
+                </v-col>
+
+                <v-col cols="6">
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">Gen Ed Modified:</span>
+                    <div>{{ genEdModified ? 'Yes' : 'No' }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">Gen Ed Time:</span>
+                    <div>{{ genEdTime ? genEdTime + ' minutes' : '—' }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">SpEd Time:</span>
+                    <div>{{ specialEdTime ? specialEdTime + ' minutes' : '—' }}</div>
+                  </div>
+                  <div class="mb-3">
+                    <span class="text-medium-emphasis font-weight-medium">Graded By:</span>
+                    <div>{{ progressGradedBy || '—' }}</div>
+                  </div>
+                  <div>
+                    <span class="text-medium-emphasis font-weight-medium">End Date:</span>
+                    <div>{{ endDate || '—' }}</div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-sheet>
           </v-card-text>
         </template>
 
         <!-- Step 3: Save -->
         <template #item.3>
-          <v-card-text class="text-center">
-            <div v-if="isSaving">Saving...</div>
+          <v-card-text class="text-center pt-6">
+            <div v-if="isSaving" class="text-medium-emphasis">Saving...</div>
             <div v-else-if="saveStatus === 'success'" class="text-success">
-              <v-icon>mdi-check-circle</v-icon>
+              <v-icon size="28" class="mb-1">mdi-check-circle</v-icon>
               {{ saveStatus }}
             </div>
             <div v-else-if="saveStatus === 'error'" class="text-error">
+              <v-icon size="28" class="mb-1">mdi-alert-circle</v-icon>
               {{ saveStatus }}
             </div>
-            <h3 class="mb-4">Are you sure you want to submit this service?</h3>
+            <h3 class="mb-4 text-subtitle-1 font-weight-medium">
+              Are you sure you want to submit this service?
+            </h3>
             <v-btn
               variant="outlined"
               color="primary"
-              class="mt-4"
+              class="mt-2"
               :loading="isSaving"
               :disabled="isSaving"
               @click="submitScheduledServices"
@@ -225,3 +346,10 @@ const submitScheduledServices = async () => {
     </v-card>
   </v-dialog>
 </template>
+
+<style scoped>
+.close-icon:hover {
+  color: rgb(var(--v-theme-primary));
+  transition: color 0.15s ease;
+}
+</style>

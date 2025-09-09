@@ -51,7 +51,7 @@ const save = () => {
     class="pt-4 px-4"
   >
     <v-list-item>
-      <h3 class="text-h6"><strong>Service</strong></h3>
+      <h3 class="text-h6 text-primary"><strong>Service</strong></h3>
       <template #append>
         <v-btn icon="mdi-close" variant="plain" @click="close" />
       </template>

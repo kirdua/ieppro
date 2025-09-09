@@ -45,6 +45,8 @@ const semesterTone = (sem) => {
       fixed-header
       height="520"
       item-key="id"
+      :items-per-page="10"
+      :items-per-page-options="[5, 10, 15, 25, 50]"
     >
       <!-- Skeleton while loading -->
       <template #loading>
@@ -136,8 +138,7 @@ const semesterTone = (sem) => {
         </tr>
       </template>
 
-      <!-- Remove default footer -->
-      <template #bottom />
+      <!-- Use Vuetify's default footer & pagination (no custom bottom slot) -->
     </v-data-table>
   </v-card>
 </template>
