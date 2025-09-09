@@ -1,4 +1,7 @@
-const navbarRoutes = [
+// /src/utils/navbar-routes.js
+const isProd = import.meta.env.PROD
+
+const routes = [
   {
     title: 'Overview',
     value: 'overview',
@@ -20,7 +23,7 @@ const navbarRoutes = [
   {
     title: 'Scheduled Services',
     value: 'scheduled-services',
-    icon: 'mdi mdi-hand-heart',
+    icon: 'mdi-hand-heart',
     route: 'scheduled-services'
   },
   {
@@ -33,14 +36,9 @@ const navbarRoutes = [
     title: 'Class Schedule',
     value: 'class-schedule',
     icon: 'mdi-calendar-clock',
-    route: 'class-schedule'
+    route: 'class-schedule',
+    devOnly: true
   }
-  // {
-  //   title: 'Annual Progress Report',
-  //   value: 'progess',
-  //   icon: 'mdi mdi-chart-bell-curve',
-  //   route: 'progress'
-  // }
 ]
 
-export default navbarRoutes
+export default routes.filter((r) => !(isProd && r.devOnly))
