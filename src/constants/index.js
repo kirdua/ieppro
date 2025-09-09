@@ -14,7 +14,7 @@ export const goalHeaders = [
     key: 'goalSubject'
   },
   {
-    title: 'Goal Focus',
+    title: 'Goal',
     align: 'left',
     key: 'goalFocus'
   },

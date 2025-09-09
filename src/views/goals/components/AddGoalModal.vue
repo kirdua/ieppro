@@ -248,7 +248,7 @@ const addGoal = async () => {
               <v-col cols="12">
                 <v-textarea
                   v-model="goalFocus"
-                  label="Goal focus"
+                  label="Goal"
                   variant="outlined"
                   density="comfortable"
                   rows="3"
