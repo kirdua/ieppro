@@ -101,6 +101,7 @@ const logoutHandler = async () => {
 const handleAddScheduledServices = () => servicesStore.toggleAddScheduledServicesModal()
 const handleAddGoals = () => goalsStore.toggleAddGoalsModal()
 const handleAddNote = () => (notesStore.noteModalIsVisible = true)
+const handleAddClass = () => (classesStore.classModalIsVisible = true)
 
 /** User menu */
 const items = [
@@ -168,6 +169,12 @@ const items = [
     <add-button
       v-if="currentTitle === 'Notes'"
       :buttonText="'Add Note'"
+      :handleClick="handleAddNote"
+    />
+
+    <add-button
+      v-if="currentTitle === 'Class Schedule'"
+      :buttonText="'Add Class'"
       :handleClick="handleAddNote"
     />
 
