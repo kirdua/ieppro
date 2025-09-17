@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, nextTick, watch } from 'vue'
 import useGoalsStore from '@/stores/goals'
-import { progressGradedByOptions } from '@/constants'
+import { progressGradedByOptions, goalSubjects } from '@/constants'
 import { v7 as uuidv7 } from 'uuid'
 
 const goalsStore = useGoalsStore()
@@ -110,7 +110,7 @@ const addGoal = async () => {
     if (!canProceedStep1.value) throw new Error('Please complete all required fields.')
 
     const singleGoal = {
-      goalSubject: goalSubject.value.trim(),
+      goalSubject: goalSubject.value,
       goalFocus: goalFocus.value.trim(),
       currentPerformance: currentPerformance.value.trim(),
       duration: duration.value.trim(),
@@ -197,18 +197,17 @@ const addGoal = async () => {
               <!-- Subject / Implementer / Duration -->
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <v-text-field
+                  <v-select
                     v-model="goalSubject"
+                    :items="goalSubjects"
+                    item-title="label"
+                    item-value="value"
                     label="Subject"
-                    placeholder="e.g., Reading, Math"
                     variant="outlined"
                     density="comfortable"
-                    clearable
                     color="primary"
                     :rules="[rules.required]"
                     prepend-inner-icon="mdi-book-education-outline"
-                    hint="Subject area this goal belongs to."
-                    persistent-hint
                   />
                 </v-col>
 
@@ -219,7 +218,6 @@ const addGoal = async () => {
                     label="Implementer"
                     variant="outlined"
                     density="comfortable"
-                    clearable
                     color="primary"
                     :rules="[rules.required]"
                     prepend-inner-icon="mdi-account-check-outline"

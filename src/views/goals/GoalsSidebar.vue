@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { progressGradedByOptions } from '@/constants'
+import { progressGradedByOptions, goalSubjects } from '@/constants'
 
 const props = defineProps({
   show: Boolean,
@@ -86,17 +86,16 @@ const saveGoal = () => {
 
           <v-row dense>
             <v-col cols="12" md="6">
-              <v-text-field
+              <v-select
                 v-model="localGoal.goalSubject"
+                :items="goalSubjects"
+                item-title="label"
+                item-value="value"
                 label="Subject"
-                placeholder="e.g., Reading, Math"
                 variant="outlined"
                 density="comfortable"
-                clearable
                 color="primary"
                 prepend-inner-icon="mdi-book-education-outline"
-                hint="Subject area for this goal"
-                persistent-hint
               />
             </v-col>
 

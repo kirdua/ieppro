@@ -52,6 +52,13 @@ export const formatTableData = (value, type) => {
   if (type === 'number') return !value ? '' : `${value.length} benchmarks`
 }
 
+export const goalSubjects = [
+  { label: 'Math', value: 'Math' },
+  { label: 'Science', value: 'Science' },
+  { label: 'Social Studies', value: 'Social Studies' },
+  { label: 'ELA (English/Language Arts)', value: 'ELA' }
+]
+
 export const semesterOptions = ['Full IEP Year', 'Fall', 'Spring', 'Summer']
 
 export const locationOptions = [
