@@ -182,6 +182,7 @@ const items = [
 
       <!-- View by -->
       <v-select
+        v-if="currentTitle === 'Goals'"
         label="View by"
         v-model="viewBy"
         :items="[
@@ -205,7 +206,7 @@ const items = [
         :items="gradeLevels"
         variant="outlined"
         density="compact"
-        class="w-25 my-0"
+        class="w-35 my-0"
         prepend-inner-icon="mdi-school"
         color="primary"
       />
