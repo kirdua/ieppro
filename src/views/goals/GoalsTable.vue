@@ -4,7 +4,8 @@ import { goalHeaders, formatTableData } from '@/constants'
 
 const props = defineProps({
   items: Array,
-  isLoading: Boolean
+  isLoading: Boolean,
+  view: String
 })
 const emit = defineEmits(['row-clicked', 'delete-goal'])
 
@@ -103,6 +104,7 @@ const itemsPerPageOptions = [
                   color="error"
                   @click="handleDelete(item, $event)"
                   aria-label="Delete goal"
+                  :disabled="view === 'subject'"
                 >
                   <v-icon size="20">mdi-trash-can</v-icon>
                 </v-btn>

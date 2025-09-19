@@ -112,6 +112,7 @@ const handleGoalSave = async (updatedGoal) => {
       <GoalsTable
         :isLoading="goalsStore.isLoading"
         :items="goalsStore.goals"
+        :view="goalsStore.viewMode"
         @row-clicked="handleGoalClick"
         @delete-goal="showDeleteDialog"
       />
