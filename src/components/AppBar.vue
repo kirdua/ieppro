@@ -1,9 +1,9 @@
-<!-- src/components/AppBar.vue -->
 <script setup>
-import { onMounted, computed, watch } from 'vue'
+import { onMounted, computed, watch, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { gradeLevels } from '@/utils/child-options'
+import { goalSubjects } from '@/constants' // strings or objects both supported
 
 import useUserStore from '@/stores/user'
 import useChildrenStore from '@/stores/children'
@@ -24,14 +24,14 @@ const servicesStore = useServicesStore()
 const goalsStore = useGoalsStore()
 const notesStore = useNotesStore()
 
-/** Reactive refs from stores */
+/** Store refs */
 const { userInfo } = storeToRefs(userStore)
 const { children, selectedChildProfile } = storeToRefs(childrenStore)
 
-/** Derived page title from route meta */
+/** Title */
 const currentTitle = computed(() => route.meta?.header ?? '')
 
-/** Build child options locally (no store changes) */
+/** Child options */
 const childOptions = computed(() =>
   (children.value || []).map((c) => ({
     id: c.id,
@@ -39,21 +39,17 @@ const childOptions = computed(() =>
   }))
 )
 
-/** Ensure children are loaded when user is ready */
+/** Load children + select first if none */
 const loadChildrenIfNeeded = async () => {
   if (!userInfo.value?.uid) return
   if (!childrenStore.children || childrenStore.children.length === 0) {
     await childrenStore.getChildrenProfiles(userInfo.value.uid)
   }
-  // If there’s no selection yet, auto-select first child
   if (!selectedChildProfile.value && childrenStore.children.length > 0) {
-    const first = childrenStore.children[0]
-    childrenStore.editChildProfile(first) // reuse your existing setter pattern
+    childrenStore.editChildProfile(childrenStore.children[0])
   }
 }
-
 onMounted(loadChildrenIfNeeded)
-
 watch(
   () => userInfo.value?.uid,
   async (uid) => {
@@ -61,36 +57,82 @@ watch(
   }
 )
 
-/** v-model for Child: maps to selectedChildProfile.id */
+/** v-model: child */
 const childModel = computed({
   get: () => selectedChildProfile.value?.id ?? null,
   set: (childId) => {
     if (!childId) {
-      // clear selection
       childrenStore.selectedChildProfile = null
       return
     }
     const picked = childrenStore.children.find((c) => c.id === childId) || null
-    // use your existing method so any UI state stays consistent
     if (picked) childrenStore.editChildProfile(picked)
   }
 })
 
-/** v-model for Grade:
- *  We map to selectedChildProfile.gradeLevel so other pages reading the store
- *  still “see” the same grade selection. (This does NOT persist to Firestore.)
- */
+/** v-model: grade (in-memory only) */
 const gradeModel = computed({
   get: () => selectedChildProfile.value?.gradeLevel ?? '',
   set: (grade) => {
     if (!selectedChildProfile.value) return
-    // Shallow merge gradeLevel into the selectedChildProfile (in-memory only)
-    childrenStore.selectedChildProfile = {
-      ...selectedChildProfile.value,
-      gradeLevel: grade || ''
-    }
+    childrenStore.selectedChildProfile = { ...selectedChildProfile.value, gradeLevel: grade || '' }
   }
 })
+
+/** View-by + subject selection */
+const viewBy = ref('grade') // 'grade' | 'subject'
+const subject = ref(null) // string | null
+
+/** Normalize subjects to { title, value } regardless of input shape */
+const subjectItems = computed(() => {
+  const src = goalSubjects || []
+  return src.map((s) => {
+    if (typeof s === 'string') {
+      const title = s === 'ELA' ? 'ELA (English/Language Arts)' : s
+      return { title, value: s }
+    }
+    const label = s.label ?? s.title ?? s.value ?? ''
+    const value = s.value ?? s.label ?? s.title ?? ''
+    const title =
+      value === 'ELA' || (label && label.includes('ELA'))
+        ? label || 'ELA (English/Language Arts)'
+        : label || String(value)
+    return { title, value }
+  })
+})
+
+/** Push context to goals store whenever child/grade/subject/view changes */
+watch(
+  () => [
+    viewBy.value,
+    subject.value,
+    selectedChildProfile.value?.id,
+    selectedChildProfile.value?.gradeLevel
+  ],
+  async () => {
+    const childId = selectedChildProfile.value?.id ?? null
+    const grade = selectedChildProfile.value?.gradeLevel ?? ''
+    if (!childId) return
+
+    if (typeof goalsStore.setContext === 'function') {
+      goalsStore.setContext({
+        viewMode: viewBy.value,
+        subject: viewBy.value === 'subject' ? subject.value : null,
+        childId,
+        grade
+      })
+      if (typeof goalsStore.refresh === 'function') {
+        await goalsStore.refresh()
+      }
+    } else {
+      // fallback to old behavior (grade-only)
+      if (viewBy.value === 'grade' && typeof goalsStore.getGoalsByGradeLevel === 'function') {
+        await goalsStore.getGoalsByGradeLevel({ id: childId, gradeLevel: grade })
+      }
+    }
+  },
+  { immediate: true }
+)
 
 /** Actions */
 const goToProfile = () => router.push('/user')
@@ -101,7 +143,7 @@ const logoutHandler = async () => {
 const handleAddScheduledServices = () => servicesStore.toggleAddScheduledServicesModal()
 const handleAddGoals = () => goalsStore.toggleAddGoalsModal()
 const handleAddNote = () => (notesStore.noteModalIsVisible = true)
-const handleAddClass = () => (classesStore.classModalIsVisible = true)
+const handleAddClass = () => (notesStore.noteModalIsVisible = true)
 
 /** User menu */
 const items = [
@@ -111,21 +153,20 @@ const items = [
 </script>
 
 <template>
-  <v-app-bar flat class="justify-end dropshadow">
+  <v-app-bar flat class="dropshadow" :height="64">
     <template #prepend>
-      <h3 class="text-primary">
-        {{ currentTitle }}
-      </h3>
+      <h3 class="text-primary">{{ currentTitle }}</h3>
     </template>
 
     <v-app-bar-title />
     <v-spacer />
 
-    <!-- Wrap selectors in a flex box to center them -->
+    <!-- Context selectors -->
     <div
       v-if="!['Overview', 'Children Profiles'].includes(currentTitle)"
-      class="d-flex justify-center align-center ga-4 mt-5 mr-5"
+      class="d-flex align-center ga-4 mr-5 h-100 mt-5"
     >
+      <!-- Child -->
       <v-select
         label="Child"
         v-model="childModel"
@@ -134,23 +175,58 @@ const items = [
         item-title="name"
         density="compact"
         variant="outlined"
-        class="w-35"
+        class="w-30 my-0"
         prepend-inner-icon="mdi-account-child"
         color="primary"
       />
+
+      <!-- View by -->
       <v-select
+        label="View by"
+        v-model="viewBy"
+        :items="[
+          { title: 'Grade', value: 'grade' },
+          { title: 'Subject', value: 'subject' }
+        ]"
+        item-title="title"
+        item-value="value"
+        density="compact"
+        variant="outlined"
+        class="w-25 my-0"
+        prepend-inner-icon="mdi-filter-variant"
+        color="primary"
+      />
+
+      <!-- Grade -->
+      <v-select
+        v-if="viewBy === 'grade'"
         label="Grade Level"
         v-model="gradeModel"
         :items="gradeLevels"
         variant="outlined"
         density="compact"
-        class="w-35"
+        class="w-25 my-0"
         prepend-inner-icon="mdi-school"
+        color="primary"
+      />
+
+      <!-- Subject -->
+      <v-select
+        v-else
+        label="Subject"
+        v-model="subject"
+        :items="subjectItems"
+        item-title="title"
+        item-value="value"
+        variant="outlined"
+        density="compact"
+        class="w-30 my-0"
+        prepend-inner-icon="mdi-book-education-outline"
         color="primary"
       />
     </div>
 
-    <!-- Add buttons shown conditionally by title -->
+    <!-- Add buttons -->
     <add-button
       v-if="currentTitle === 'Children Profiles'"
       :buttonText="'Add Child'"
@@ -165,17 +241,17 @@ const items = [
       v-if="currentTitle === 'Goals'"
       :buttonText="'Add Goal'"
       :handleClick="handleAddGoals"
+      :disabled="viewBy === 'subject'"
     />
     <add-button
       v-if="currentTitle === 'Notes'"
       :buttonText="'Add Note'"
       :handleClick="handleAddNote"
     />
-
     <add-button
       v-if="currentTitle === 'Class Schedule'"
       :buttonText="'Add Class'"
-      :handleClick="handleAddNote"
+      :handleClick="handleAddClass"
     />
 
     <!-- User menu -->
@@ -211,5 +287,32 @@ const items = [
 }
 .dropshadow {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Center controls vertically within the app bar */
+.appbar-controls {
+  align-items: center;
+  height: 100%;
+}
+
+/* Neutralize vertical spacing inside inputs/buttons in the app bar */
+.appbar-controls .v-select,
+.appbar-controls .v-btn,
+.appbar-controls .v-chip {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  align-self: center;
+}
+
+/* Offset Vuetify's internal field wrapper */
+.appbar-controls .v-field {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  align-self: center;
+}
+
+/* Keep inputs balanced inside a 64px app bar */
+.appbar-controls .v-select :deep(.v-field__input) {
+  min-height: 38px;
 }
 </style>

@@ -1,10 +1,11 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { progressGradedByOptions, goalSubjects } from '@/constants'
 
 const props = defineProps({
   show: Boolean,
-  goal: Object
+  goal: Object,
+  view: String
 })
 
 const emit = defineEmits(['update:show', 'save'])
@@ -52,6 +53,10 @@ const saveGoal = () => {
   })
   closeSidebar()
 }
+
+computed(() => {
+  return props.view === 'subject'
+})
 </script>
 
 <template>
@@ -65,7 +70,9 @@ const saveGoal = () => {
   >
     <!-- Header -->
     <v-toolbar density="comfortable" color="primary" class="text-white">
-      <v-toolbar-title class="text-subtitle-1 font-weight-medium"> Edit Goal </v-toolbar-title>
+      <v-toolbar-title class="text-subtitle-1 font-weight-medium">
+        {{ view === 'subject' ? 'Goal' : 'Edit Goal' }}
+      </v-toolbar-title>
       <v-spacer />
       <v-btn icon variant="text" color="white" @click="closeSidebar" aria-label="Close editor">
         <v-icon>mdi-close</v-icon>
@@ -96,6 +103,7 @@ const saveGoal = () => {
                 density="comfortable"
                 color="primary"
                 prepend-inner-icon="mdi-book-education-outline"
+                :disabled="view == 'subject'"
               />
             </v-col>
 
@@ -110,6 +118,7 @@ const saveGoal = () => {
                 prepend-inner-icon="mdi-account-check-outline"
                 hint="Who measures progress"
                 persistent-hint
+                :disabled="view == 'subject'"
               />
             </v-col>
 
@@ -125,6 +134,7 @@ const saveGoal = () => {
                 prepend-inner-icon="mdi-timer-outline"
                 hint="Measurement window"
                 persistent-hint
+                :disabled="view == 'subject'"
               />
             </v-col>
 
@@ -139,6 +149,7 @@ const saveGoal = () => {
                 prepend-inner-icon="mdi-bullseye-arrow"
                 hint="Targeted outcome (be specific/measurable)"
                 persistent-hint
+                :disabled="view == 'subject'"
               />
             </v-col>
 
@@ -153,6 +164,7 @@ const saveGoal = () => {
                 prepend-inner-icon="mdi-clipboard-text-outline"
                 hint="Present level of performance"
                 persistent-hint
+                :disabled="view == 'subject'"
               />
             </v-col>
           </v-row>
@@ -168,6 +180,7 @@ const saveGoal = () => {
               size="small"
               prepend-icon="mdi-plus"
               @click="addBenchmark"
+              :disabled="view == 'subject'"
             >
               Add benchmark
             </v-btn>
@@ -183,6 +196,7 @@ const saveGoal = () => {
                 color="primary"
                 placeholder="Measurable checkpoint (e.g., 80% retell accuracy)"
                 prepend-inner-icon="mdi-flag-outline"
+                :disabled="view == 'subject'"
               >
                 <template #append-inner>
                   <v-tooltip text="Remove benchmark" location="top">
@@ -215,6 +229,7 @@ const saveGoal = () => {
           variant="elevated"
           @click="saveGoal"
           prepend-icon="mdi-content-save"
+          :disabled="view == 'subject'"
         >
           Save Changes
         </v-btn>

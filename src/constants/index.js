@@ -9,7 +9,7 @@ export const servicesHeaders = [
 
 export const goalHeaders = [
   {
-    title: 'Goal Subject',
+    title: 'Subject',
     align: 'left',
     key: 'goalSubject'
   },
