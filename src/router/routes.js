@@ -108,7 +108,7 @@ const routes = [
   {
     path: '/class-schedule',
     name: 'class-schedule',
-    component: () => import('@/views/schedule/ClassSchedule.vue'),
+    component: () => import('@/views/classes/ClassSchedule.vue'),
     beforeEnter(to, from, next) {
       next()
     },
