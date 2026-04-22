@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import axios from 'axios'
 import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from '@/constants/index'
 
 // Cloudinary API endpoint using environment variables
@@ -23,8 +22,20 @@ export function useCloudinary() {
       isUploading.value = true
       uploadError.value = null
 
-      const response = await axios.post(CLOUDINARY_API_URL, formData)
-      return response.data.secure_url
+      const response = await fetch(CLOUDINARY_API_URL, {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '')
+        throw new Error(
+          `Cloudinary upload failed: ${response.status} ${response.statusText} ${text}`
+        )
+      }
+
+      const data = await response.json()
+      return data.secure_url
     } catch (error) {
       console.error('Cloudinary upload error:', error)
       uploadError.value = error

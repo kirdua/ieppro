@@ -23,7 +23,6 @@
     "@popperjs/core": "^2.11.8",
     "@stripe/stripe-js": "^5.6.0",
     "@vuepic/vue-datepicker": "^8.6.0",
-    "axios": "^1.7.9",
     "chartjs": "^0.3.24",
     "date-fns": "^3.6.0",
     "firebase": "^10.12.2",

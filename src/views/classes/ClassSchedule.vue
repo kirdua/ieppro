@@ -3,7 +3,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useClassesStore } from '@/stores/classes'
-//import DaySidebar from './components/DaySidebar.vue'
+import DaySidebar from './components/DaySidebar.vue'
 import AddClassDialog from './components/AddClassDialog.vue'
 
 const route = useRoute()
