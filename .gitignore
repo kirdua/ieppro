@@ -17,6 +17,8 @@ coverage
 .env.local
 .env.development
 .env.production
+firebase.json
+.firebaserc
 
 /cypress/videos/
 /cypress/screenshots/
